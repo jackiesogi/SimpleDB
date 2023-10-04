@@ -6,7 +6,7 @@
 #include <unistd.h>
 //#include "../include/crud.h"
 
-#define FILENAME "./data/kvstore.dat"
+#define FILENAME "./data/recordsstore.dat"
 #define MAX_ENTRIES 100
 #define QUERY_STRING_MAX 100
 
@@ -16,30 +16,36 @@ struct KeyValue
 	char value[128];
 };
 
-void store_key_value(struct KeyValue *kv, int *num_entries, const char *key, const char *value)
+struct KeyValue_Table
 {
-	if (*num_entries >= MAX_ENTRIES)
+	int count_entries;
+	struct KeyValue records[MAX_ENTRIES];
+};
+
+void store_key_value(struct KeyValue_Table *table, const char *key, const char *value)
+{
+	if (table->count_entries >= MAX_ENTRIES)
 	{
-		printf("Error: Maximum number of entries reached.\n");
+		puts("[Error] Maximum number of entries reached.");
 		return;
 	}
-
-	strcpy(kv[*num_entries].key, key);
-	strcpy(kv[*num_entries].value, value);
-	(*num_entries) ++;
-	//printf("Key-Value pair set: %s -> %s\n", key, value);
+	
+	strcpy(table->records[table->count_entries].key, key);
+	strcpy(table->records[table->count_entries].value, value);
+	(table->count_entries) ++;
 	puts("OK");
 }
 
-char *retrieve_value_by_key(struct KeyValue *kv, int num_entries, const char *search_key)
+char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key)
 {
 	// Currently it is a linear search, hash function to be added.
-	for (int i = 0; i < num_entries; i++)
+	int size = table->count_entries;
+	for (int i = 0; i < size; i++)
 	{
-		if (strcmp(kv[i].key, search_key) == 0)
+		if (strcmp(table->records[i].key, search_key) == 0)
 		{
-			printf("\"%s\"\n", kv[i].value);
-			return kv[i].value;
+			printf("\"%s\"\n", table->records[i].value);
+			return table->records[i].value;
 		}
 	}
 
@@ -47,19 +53,35 @@ char *retrieve_value_by_key(struct KeyValue *kv, int num_entries, const char *se
 	return NULL;
 }
 
+void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
+{
+	int size = table->count_entries;
+	for(int i = 0; i < size; i++)
+	{
+		if (strcmp(table->records[i].key, search_key) == 0)
+		{
+			table->records[i].value[0] = '\0';
+			table->records[i].key[0] = '\0';
+			puts("OK");
+			return;
+		}
+	}
+	puts("(nil)");
+}
+
 int main()
 {
-	puts("##############################################");
-	puts("##############################################");
-	puts("##                                          ##");
-	puts("##          SimpleDB by jackiesogi          ##");
-	puts("##                                          ##");
-	puts("##############################################");
-	puts("##############################################");
+	puts("######################################################");
+	puts("######################################################");
+	puts("##                                                  ##");
+	puts("##              SimpleDB by jackiesogi              ##");
+	puts("##    (Sorry, it's not listening on any port :D)    ##");
+	puts("##                                                  ##");
+	puts("######################################################");
+	puts("######################################################");
 
 	int fd;
-	struct KeyValue * kv;
-	int num_entries;
+	struct KeyValue_Table *table;
 
 	fd = open(FILENAME, O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd == -1)
@@ -73,20 +95,18 @@ int main()
 		}
 
 		// Initialize the file with zeros
-		ftruncate(fd, MAX_ENTRIES* sizeof(struct KeyValue));
+		ftruncate(fd, sizeof(struct KeyValue_Table));
 		
 	}
 
 	// Map the file into memory.
-	kv = (struct KeyValue *) mmap(NULL, MAX_ENTRIES * sizeof(struct KeyValue), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	if (kv == MAP_FAILED)
+	table = (struct KeyValue_Table *) mmap(NULL, sizeof(struct KeyValue_Table), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (table == MAP_FAILED)
 	{
 		perror("mmap");
 		exit(1);
 	}
 	
-	// to be modify
-	num_entries = 15;
 
 	// Assuming the maximum length of query_string is 99 characters plus null terminator
 	char query_string[QUERY_STRING_MAX];
@@ -94,7 +114,7 @@ int main()
 	while (1)
 	{
 		// Infinite loop
-		printf("127.0.0.1 > ");
+		printf("127.0.0.1:6379 > ");
 		fgets(query_string, sizeof(query_string), stdin);
 
 		// Remove newline character added by fgets
@@ -113,33 +133,52 @@ int main()
 		{
 			continue;
 		}
-		else if (strncmp(query_string, "set ", 4) == 0)
+		else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
 		{
 			char *args = query_string + 4;	// Move the pointer past "set "
 			char *key = strtok(args, " ");
 			char *value = strtok(NULL, " ");
 			if (key != NULL && value != NULL)
 			{
-				store_key_value(kv, &num_entries, key, value);
+				store_key_value(table, key, value);
 			}
 			else
 			{
-				printf("Invalid set command format.\n");
+				puts("[Usage] set <key> <value>");
 			}
 		}
-		else if (strncmp(query_string, "get ", 4) == 0)
+		else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
 		{
 			char *key = query_string + 4;	// Move the pointer past "get "
-			retrieve_value_by_key(kv, num_entries, key);
+			if (strcmp(key, " ") == 0)
+			{
+				puts("[Usage] get <key>");
+			}
+			else
+			{
+				retrieve_value_by_key(table, key);
+			}
+		}
+		else if (strncmp(query_string, "del ", 4) == 0 || strncmp(query_string, "DEL ", 4) == 0)
+		{
+			char *key = query_string + 4;	// Move the pointer past "get "
+			if (strcmp(key, " ") == 0)
+			{
+				puts("[Usage] del <key>");
+			}
+			else
+			{
+				delete_value_by_key(table, key);
+			}
 		}
 		else
 		{
-			printf("Invalid command: %s\n", query_string);
+			printf("[Error] Command %s\n not found.\n", query_string);
 		}
 	}
 
 	// Unmap and close the file.
-	munmap(kv, MAX_ENTRIES* sizeof(struct KeyValue));
+	munmap(table, sizeof(struct KeyValue_Table));
 	close(fd);
 
 	return 0;
