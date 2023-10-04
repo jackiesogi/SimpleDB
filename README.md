@@ -3,6 +3,7 @@
 
 ## Features
 * Command line interface.
+* Key-Value storage.
 * Light weight.
 
 ### Features under development
@@ -11,18 +12,13 @@
 * Encryption on stored data.
 
 ## Build by yourself
-1. Clone the repository to where you want to store the source files.
+* Navigate to the directory you want to build, and open in terminal:
 ```sh
 git clone https://github.com/jackiesogi/SimpleDB.git
-```
-2. Navigate to the project folder.
-```sh
 cd SimpleDB/
-```
-3. You can check the makefile and source code before start building.
-```sh
 make
 ```
+* By default, the SimpleDB directory will not add to your environment variable, you can add it if needed.
 
 ## Commands
 * Start the SimpeDB
@@ -38,4 +34,9 @@ set example_key_1 Helloworld
 * Get value by key
 ```sh
 get example_key_1	# and it will output Helloworld
+```
+
+*  Delete value and key
+```sh
+del example_key_1   # and it will output OK
 ```
