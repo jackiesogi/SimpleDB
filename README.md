@@ -1,10 +1,13 @@
 # SimpleDB
+![](./image/thumbnail.png)
+
 ## Features
 * Command line interface.
 * Light weight.
 
 ### Features under development
 * Remote access.
+* Hash function to raising the querying performance.
 * Encryption on stored data.
 
 ## Build by yourself
@@ -21,4 +24,18 @@ cd SimpleDB/
 make
 ```
 
-## Download the release
+## Commands
+* Start the SimpeDB
+```sh
+./SimpleDB
+```
+
+* Set key and value
+```sh
+set example_key_1 Helloworld
+```
+
+* Get value by key
+```sh
+get example_key_1	# and it will output Helloworld
+```
