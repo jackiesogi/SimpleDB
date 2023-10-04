@@ -6,7 +6,7 @@
 #include <unistd.h>
 //#include "../include/crud.h"
 
-#define FILENAME "./data/recordsstore.dat"
+#define FILENAME "./data/kvstore.dat"
 #define MAX_ENTRIES 100
 #define QUERY_STRING_MAX 100
 
