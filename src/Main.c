@@ -9,6 +9,13 @@
 #define FILENAME "./data/kvstore.dat"
 #define MAX_ENTRIES 100
 #define QUERY_STRING_MAX 100
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
 struct KeyValue
 {
@@ -71,14 +78,15 @@ void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 
 int main()
 {
-	puts("######################################################");
-	puts("######################################################");
-	puts("##                                                  ##");
-	puts("##              SimpleDB by jackiesogi              ##");
-	puts("##    (Sorry, it's not listening on any port :D)    ##");
-	puts("##                                                  ##");
-	puts("######################################################");
-	puts("######################################################");
+	printf(ANSI_COLOR_CYAN "###################################################### \n");
+	printf(ANSI_COLOR_CYAN "###################################################### \n");
+	printf(ANSI_COLOR_CYAN "##                                                  ## \n");
+	printf(ANSI_COLOR_CYAN "##              SimpleDB by jackiesogi              ## \n");
+	printf(ANSI_COLOR_CYAN "##    (Sorry, it's not listening on any port :D)    ## \n");
+	printf(ANSI_COLOR_CYAN "##                                                  ## \n");
+	printf(ANSI_COLOR_CYAN "###################################################### \n");
+	printf(ANSI_COLOR_CYAN "###################################################### \n");
+	printf(ANSI_COLOR_RESET);
 
 	int fd;
 	struct KeyValue_Table *table;
@@ -173,7 +181,7 @@ int main()
 		}
 		else
 		{
-			printf("[Error] Command %s\n not found.\n", query_string);
+			printf("[Error] Command \"%s\" not found.\n", query_string);
 		}
 	}
 
