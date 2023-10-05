@@ -29,7 +29,7 @@ struct KeyValue_Table
 	struct KeyValue records[MAX_ENTRIES];
 };
 
-void store_key_value(struct KeyValue_Table *table, const char *key, const char *value)
+void store_value_by_key(struct KeyValue_Table *table, const char *key, const char *value)
 {
 	if (table->count_entries >= MAX_ENTRIES)
 	{
@@ -148,7 +148,7 @@ int main()
 			char *value = strtok(NULL, " ");
 			if (key != NULL && value != NULL)
 			{
-				store_key_value(table, key, value);
+				store_value_by_key(table, key, value);
 			}
 			else
 			{
