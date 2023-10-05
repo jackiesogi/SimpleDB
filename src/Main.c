@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -29,20 +30,48 @@ struct KeyValue_Table
 	struct KeyValue records[MAX_ENTRIES];
 };
 
-void store_value_by_key(struct KeyValue_Table *table, const char *key, const char *value)
+/************************************************************************/
+/************************************************************************/  
+/**  This function store a key-value pair into a given table           **/
+/**                                                                    **/
+/**  Parameters:                                                       **/
+/**    - table   : The target table you want to store key and value.   **/
+/**    - key     : The key you want to store.                          **/
+/**    - value   : The value you want to store.                        **/
+/**                                                                    **/
+/**  Returns:                                                          **/
+/**    - if succeeded it will return true.                             **/
+/**    - if failed it will return false.                               **/
+/************************************************************************/
+/************************************************************************/
+bool store_value_by_key(struct KeyValue_Table *table, const char *key, const char *value)
 {
 	if (table->count_entries >= MAX_ENTRIES)
 	{
 		puts("[Error] Maximum number of entries reached.");
-		return;
+		return false;
 	}
 	
 	strcpy(table->records[table->count_entries].key, key);
 	strcpy(table->records[table->count_entries].value, value);
 	(table->count_entries) ++;
 	puts("OK");
+	return true;
 }
 
+/*************************************************************************/
+/*************************************************************************/  
+/**  This function retrieve a value from given table by a given key.    **/
+/**                                                                     **/
+/**  Parameters:                                                        **/
+/**    - table      : The target table you want to retrieve value from. **/
+/**    - search_key : The key of the value you want to retrieve.        **/
+/**                                                                     **/
+/**  Returns:                                                           **/
+/**    - if succeeded it will return the value in string.               **/
+/**    - if failed it will return NULL.                                 **/
+/*************************************************************************/
+/*************************************************************************/
 char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key)
 {
 	// Currently it is a linear search, hash function to be added.
@@ -60,6 +89,18 @@ char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key
 	return NULL;
 }
 
+/*************************************************************************/
+/*************************************************************************/  
+/**  This function delete the value from given table by a given key.    **/
+/**                                                                     **/
+/**  Parameters:                                                        **/
+/**    - table      : The target table you want to delete value from.   **/
+/**    - search_key : The key of the value you want to delete.          **/
+/**                                                                     **/
+/**  Returns:                                                           **/
+/**    (no return value)                                                **/
+/*************************************************************************/
+/*************************************************************************/
 void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 {
 	int size = table->count_entries;
@@ -76,6 +117,10 @@ void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 	puts("(nil)");
 }
 
+
+/********************************/
+/** Entry point of the program **/
+/********************************/
 int main()
 {
 	printf(ANSI_COLOR_CYAN "###################################################### \n");
@@ -116,12 +161,11 @@ int main()
 	}
 	
 
-	// Assuming the maximum length of query_string is 99 characters plus null terminator
+	// the maximum length of query_string is 99 characters plus a terminator
 	char query_string[QUERY_STRING_MAX];
 
 	while (1)
 	{
-		// Infinite loop
 		printf("127.0.0.1:6379 > ");
 		fgets(query_string, sizeof(query_string), stdin);
 
@@ -135,7 +179,7 @@ int main()
 		if (strcmp(query_string, "exit") == 0)
 		{
 			puts("Bye!");
-			break;	// Exit the loop
+			break;	// Exit the command listening loop
 		}
 		else if (strcmp(query_string, "\0") == 0)
 		{
