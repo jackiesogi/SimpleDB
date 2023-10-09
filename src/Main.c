@@ -123,14 +123,16 @@ void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 /********************************/
 int main()
 {
-	printf(ANSI_COLOR_CYAN "###################################################### \n");
-	printf(ANSI_COLOR_CYAN "###################################################### \n");
-	printf(ANSI_COLOR_CYAN "##                                                  ## \n");
-	printf(ANSI_COLOR_CYAN "##              SimpleDB by jackiesogi              ## \n");
-	printf(ANSI_COLOR_CYAN "##    (Sorry, it's not listening on any port :D)    ## \n");
-	printf(ANSI_COLOR_CYAN "##                                                  ## \n");
-	printf(ANSI_COLOR_CYAN "###################################################### \n");
-	printf(ANSI_COLOR_CYAN "###################################################### \n");
+	printf(ANSI_COLOR_CYAN);
+	printf("###################################################### \n");
+	printf("###################################################### \n");
+	printf("##                                                  ## \n");
+	printf("##              SimpleDB by jackiesogi              ## \n");
+	printf("##    (Sorry, it's not listening on any port :D)    ## \n");
+	printf("##                                                  ## \n");
+	printf("###################################################### \n");
+	printf("###################################################### \n");
+	printf("Type \"HELP\" to see the usage...\n");
 	printf(ANSI_COLOR_RESET);
 
 	int fd;
@@ -176,7 +178,7 @@ int main()
 			query_string[len - 1] = '\0';
 		}
 
-		if (strcmp(query_string, "exit") == 0)
+		if (strcmp(query_string, "exit") == 0 || strcmp(query_string, "EXIT") == 0)
 		{
 			puts("Bye!");
 			break;	// Exit the command listening loop
@@ -196,7 +198,7 @@ int main()
 			}
 			else
 			{
-				puts("[Usage] set <key> <value>");
+				puts("[Usage] SET <key> <value>");
 			}
 		}
 		else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
@@ -204,7 +206,7 @@ int main()
 			char *key = query_string + 4;	// Move the pointer past "get "
 			if (strcmp(key, " ") == 0)
 			{
-				puts("[Usage] get <key>");
+				puts("[Usage] GET <key>");
 			}
 			else
 			{
@@ -216,12 +218,39 @@ int main()
 			char *key = query_string + 4;	// Move the pointer past "get "
 			if (strcmp(key, " ") == 0)
 			{
-				puts("[Usage] del <key>");
+				puts("[Usage] DEL <key>");
 			}
 			else
 			{
 				delete_value_by_key(table, key);
 			}
+		}
+		else if (strncmp(query_string, "help", 4) == 0 || strncmp(query_string, "HELP", 4) == 0)
+		{
+			puts("");
+			puts("SET <key> <value>");
+			puts("    example : SET name Caroline");
+			puts("    output  : OK");
+			puts("    example : SET height 168");
+			puts("    output  : OK");
+                        puts("");
+			puts("GET <key>");
+			puts("    example : GET name");
+			puts("    output  : \"Caroline\"");
+			puts("    example : GET weight");
+			puts("    output  : (nil)");
+			puts("");
+			puts("DEL <key>");
+			puts("    example : DEL height");
+			puts("    output  : OK");
+			puts("    example : DEL helloworld");
+			puts("    output  : (nil)");
+			puts("");
+			puts("EXIT");
+			puts("    example : EXIT");
+			puts("    output  : Bye!");
+			puts("");
+
 		}
 		else
 		{
