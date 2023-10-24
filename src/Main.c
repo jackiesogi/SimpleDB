@@ -5,117 +5,9 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-//#include "../include/crud.h"
-
-#define FILENAME "./data/kvstore.dat"
-#define MAX_ENTRIES 100
-#define QUERY_STRING_MAX 100
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
-struct KeyValue
-{
-	char key[32];
-	char value[128];
-};
-
-struct KeyValue_Table
-{
-	int count_entries;
-	struct KeyValue records[MAX_ENTRIES];
-};
-
-/************************************************************************/
-/************************************************************************/  
-/**  This function store a key-value pair into a given table           **/
-/**                                                                    **/
-/**  Parameters:                                                       **/
-/**    - table   : The target table you want to store key and value.   **/
-/**    - key     : The key you want to store.                          **/
-/**    - value   : The value you want to store.                        **/
-/**                                                                    **/
-/**  Returns:                                                          **/
-/**    - if succeeded it will return true.                             **/
-/**    - if failed it will return false.                               **/
-/************************************************************************/
-/************************************************************************/
-bool store_value_by_key(struct KeyValue_Table *table, const char *key, const char *value)
-{
-	if (table->count_entries >= MAX_ENTRIES)
-	{
-		puts("[Error] Maximum number of entries reached.");
-		return false;
-	}
-	
-	strcpy(table->records[table->count_entries].key, key);
-	strcpy(table->records[table->count_entries].value, value);
-	(table->count_entries) ++;
-	puts("OK");
-	return true;
-}
-
-/*************************************************************************/
-/*************************************************************************/  
-/**  This function retrieve a value from given table by a given key.    **/
-/**                                                                     **/
-/**  Parameters:                                                        **/
-/**    - table      : The target table you want to retrieve value from. **/
-/**    - search_key : The key of the value you want to retrieve.        **/
-/**                                                                     **/
-/**  Returns:                                                           **/
-/**    - if succeeded it will return the value in string.               **/
-/**    - if failed it will return NULL.                                 **/
-/*************************************************************************/
-/*************************************************************************/
-char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key)
-{
-	// Currently it is a linear search, hash function to be added.
-	int size = table->count_entries;
-	for (int i = 0; i < size; i++)
-	{
-		if (strcmp(table->records[i].key, search_key) == 0)
-		{
-			printf("\"%s\"\n", table->records[i].value);
-			return table->records[i].value;
-		}
-	}
-
-	puts("(nil)");
-	return NULL;
-}
-
-/*************************************************************************/
-/*************************************************************************/  
-/**  This function delete the value from given table by a given key.    **/
-/**                                                                     **/
-/**  Parameters:                                                        **/
-/**    - table      : The target table you want to delete value from.   **/
-/**    - search_key : The key of the value you want to delete.          **/
-/**                                                                     **/
-/**  Returns:                                                           **/
-/**    (no return value)                                                **/
-/*************************************************************************/
-/*************************************************************************/
-void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
-{
-	int size = table->count_entries;
-	for(int i = 0; i < size; i++)
-	{
-		if (strcmp(table->records[i].key, search_key) == 0)
-		{
-			table->records[i].value[0] = '\0';
-			table->records[i].key[0] = '\0';
-			puts("OK");
-			return;
-		}
-	}
-	puts("(nil)");
-}
+#include "../include/crud.h"
+#include "../include/cli.h"
+#include "../include/datastructure.h"
 
 
 /********************************/
@@ -123,17 +15,7 @@ void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 /********************************/
 int main()
 {
-	printf(ANSI_COLOR_CYAN);
-	printf("###################################################### \n");
-	printf("###################################################### \n");
-	printf("##                                                  ## \n");
-	printf("##              SimpleDB by jackiesogi              ## \n");
-	printf("##    (Sorry, it's not listening on any port :D)    ## \n");
-	printf("##                                                  ## \n");
-	printf("###################################################### \n");
-	printf("###################################################### \n");
-	printf("Type \"HELP\" to see the usage...\n");
-	printf(ANSI_COLOR_RESET);
+	printWelcomePage();
 
 	int fd;
 	struct KeyValue_Table *table;
@@ -168,7 +50,7 @@ int main()
 
 	while (1)
 	{
-		printf("127.0.0.1:6379 > ");
+		printNewLine();
 		fgets(query_string, sizeof(query_string), stdin);
 
 		// Remove newline character added by fgets
@@ -180,7 +62,7 @@ int main()
 
 		if (strcmp(query_string, "exit") == 0 || strcmp(query_string, "EXIT") == 0)
 		{
-			puts("Bye!");
+			printGoodBye();
 			break;	// Exit the command listening loop
 		}
 		else if (strcmp(query_string, "\0") == 0)
@@ -198,7 +80,7 @@ int main()
 			}
 			else
 			{
-				puts("[Usage] SET <key> <value>");
+				printSetUsage();
 			}
 		}
 		else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
@@ -206,7 +88,7 @@ int main()
 			char *key = query_string + 4;	// Move the pointer past "get "
 			if (strcmp(key, " ") == 0)
 			{
-				puts("[Usage] GET <key>");
+				printGetUsage();
 			}
 			else
 			{
@@ -218,7 +100,7 @@ int main()
 			char *key = query_string + 4;	// Move the pointer past "get "
 			if (strcmp(key, " ") == 0)
 			{
-				puts("[Usage] DEL <key>");
+				printDelUsage();
 			}
 			else
 			{
@@ -227,34 +109,12 @@ int main()
 		}
 		else if (strncmp(query_string, "help", 4) == 0 || strncmp(query_string, "HELP", 4) == 0)
 		{
-			puts("");
-			puts("SET <key> <value>");
-			puts("    example : SET name Caroline");
-			puts("    output  : OK");
-			puts("    example : SET height 168");
-			puts("    output  : OK");
-                        puts("");
-			puts("GET <key>");
-			puts("    example : GET name");
-			puts("    output  : \"Caroline\"");
-			puts("    example : GET weight");
-			puts("    output  : (nil)");
-			puts("");
-			puts("DEL <key>");
-			puts("    example : DEL height");
-			puts("    output  : OK");
-			puts("    example : DEL helloworld");
-			puts("    output  : (nil)");
-			puts("");
-			puts("EXIT");
-			puts("    example : EXIT");
-			puts("    output  : Bye!");
-			puts("");
+			printHelpPage();
 
 		}
 		else
 		{
-			printf("[Error] Command \"%s\" not found.\n", query_string);
+			printCommandNotFound(query_string);
 		}
 	}
 
