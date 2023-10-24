@@ -7,6 +7,14 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Hash Debug",
+            "program": "${workspaceFolder}/hash/main",
+            "args": [],
+            "cwd": "${workspaceFolder}/hash"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug",
             "program": "${workspaceFolder}/SimpleDB",
             "args": [],
