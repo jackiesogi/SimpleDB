@@ -18,8 +18,8 @@ struct KeyValue
 
 struct KeyValue_Table
 {
-	int32_t  count_entries = 0;
-    int32_t  max_size = MAX_ENTRIES;
+	int32_t  count_entries;
+    int32_t  max_size;
     struct   KeyValue **records;
 };
 
@@ -48,7 +48,7 @@ void insert(struct KeyValue_Table *table, const char *key, const char *value)
     new_entry->next = table->records[index];
     table->records[index] = new_entry;
     
-    printf("Inserted key '%s' with value '%s' at index '%ld\n", key, value, index);
+    printf("Inserted key '%s' with value '%s' at index '%d\n", key, value, index);
 }
 
 // Search for a value using a key
@@ -59,7 +59,7 @@ const char *search(struct KeyValue_Table *table, const char *key)
 
     while (current != NULL) {
         if (strcmp(current->key, key) == 0) {
-            printf("Found key '%s' with value '%s' at index '%ld'", key, current->value, index);
+            printf("Found key '%s' with value '%s' at index '%d'\n", key, current->value, index);
             return current->value;
         }
         current = current->next;
@@ -106,7 +106,7 @@ void delete(struct KeyValue_Table *table, const char *key)
 // Initialize the hash table
 void initHashTable(struct KeyValue_Table *table, int max_size) {
     table->count_entries = 0;
-    table->max_size = max_size;
+    table->max_size = MAX_ENTRIES;
     table->records = (struct KeyValue **)malloc(max_size * sizeof(struct KeyValue *));
     for (int i = 0; i < max_size; i++) {
         table->records[i] = NULL;
