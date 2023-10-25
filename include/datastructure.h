@@ -19,7 +19,7 @@ struct KeyValue_Table
 {
 	int32_t count_entries;
 	int32_t max_size;
-	struct KeyValue **records;
+	struct KeyValue records[MAX_ENTRIES];
 };
 
 extern struct KeyValue_Table* initKeyValueTable();

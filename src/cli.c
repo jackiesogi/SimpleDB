@@ -7,7 +7,7 @@ void printWelcomePage()
 	printf("###################################################### \n");
 	printf("###################################################### \n");
 	printf("##                                                  ## \n");
-	printf("##              SimpleDB by jackiesogi              ## \n");
+	printf("##           Rebis Database by jackiesogi           ## \n");
 	printf("##    (Sorry, it's not listening on any port :D)    ## \n");
 	printf("##                                                  ## \n");
 	printf("###################################################### \n");
@@ -18,7 +18,7 @@ void printWelcomePage()
 
 void printNewLine()
 {
-    printf("127.0.0.1:6379 > ");
+    printf("127.0.0.1:8888 > ");
 }
 
 void printGoodBye()

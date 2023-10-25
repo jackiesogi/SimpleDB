@@ -10,12 +10,18 @@ struct KeyValue_Table* initKeyValueTable()
 		printf("table does not need to initialize!\n");
 		return NULL;
 	}
-	table = (struct KeyValue_Table*)malloc(sizeof(struct KeyValue_Table));
-	table->records = (struct KeyValue **)malloc(sizeof(struct KeyValue*));
-	for(int i = 0; i < MAX_ENTRIES; i++)
-	{
-		table->records[i] = (struct KeyValue *)malloc(sizeof(struct KeyValue));
+	table = (struct KeyValue_Table*)calloc(1, sizeof(struct KeyValue_Table));
+	
+	for (int i = 0; i < table->max_size; i++)
+	{	
+		table->records[i].next = (struct KeyValue*)calloc (1, sizeof(struct KeyValue*));
 	}
+
+	// table.records = (struct KeyValue **)malloc(sizeof(struct KeyValue*));
+	// for(int i = 0; i < MAX_ENTRIES; i++)
+	// {
+	// 	table->records[i] = (struct KeyValue *)calloc(1, sizeof(struct KeyValue));
+	// }
 	table->max_size = 50;
 	table->count_entries = 0;
 
@@ -24,5 +30,9 @@ struct KeyValue_Table* initKeyValueTable()
 
 void freeKeyValueTable(struct KeyValue_Table *table)
 {
-	free(table);
+	if (table != NULL)
+	{
+    	free(table);
+	}
+
 }

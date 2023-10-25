@@ -27,16 +27,16 @@ void store_value_by_key(struct KeyValue_Table *table, const char *search_key, co
         table->count_entries++;
     //}
 
-    new_entry->next = table->records[index];
-    table->records[index] = new_entry;
+    new_entry->next = &(table->records[index]);
+    table->records[index] = *new_entry;
     
-    printf("Inserted key '%s' with value '%s' at index '%d\n", search_key, value, index);
+    printf("Inserted key '%s' with value '%s' at index '%d'\n", search_key, value, index);
 }
 
 const char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key)
 {
 	unsigned int index = hash_function(search_key, table->max_size);
-    struct KeyValue *current = table->records[index];
+    struct KeyValue *current = &(table->records[index]);
 
     while (current != NULL) {
         if (strcmp(current->key, search_key) == 0) {
@@ -55,10 +55,10 @@ void delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 	unsigned int size = table->count_entries;
 	for(unsigned int i = 0; i < size; i++)
 	{
-		if (strcmp(table->records[i]->key, search_key) == 0)
+		if (strcmp(table->records[i].key, search_key) == 0)
 		{
-			table->records[i]->value[0] = '\0';
-			table->records[i]->key[0] = '\0';
+			table->records[i].value[0] = '\0';
+			table->records[i].key[0] = '\0';
 			puts("OK");
 			return;
 		}

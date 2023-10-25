@@ -6,7 +6,7 @@ CFLAGS = -Wall -Wextra -g
 SRC_DIR = src
 OBJ_DIR = object
 DB_DIR = data
-EXE = SimpleDB
+EXE = rebis-cli
 
 # Source files
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)

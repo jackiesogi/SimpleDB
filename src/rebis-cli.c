@@ -14,7 +14,7 @@
 /********************************/
 /** Entry point of the program **/
 /********************************/
-int main()
+int main(int argc, char *argv[])
 {
 	printWelcomePage();
 
@@ -45,6 +45,25 @@ int main()
 		{
 			perror("mmap");
 			exit(1);
+		}
+		if (table->max_size == 0)
+		{
+			const char *errorMessage = "\nTable initialization failed: max_size == 0\nforce execute please type \"./rebis-cli --force\"\nBut you might not expect operations to run correctly\n";
+			// print message to stderr
+			fprintf(stderr, "%s\n", errorMessage);
+			//perror(errorMessage);
+			if ( argc == 1 )
+			{
+				return -1;
+				// if (strcmp(argv[1], "--force") == 0)
+				// {
+				// 	table->max_size = 50;
+				// }
+			}
+			else
+			{
+				return -1;
+			}
 		}
 	}
 
@@ -124,7 +143,7 @@ int main()
 	// Unmap and close the file.	
 	if (msync(table, sizeof(struct KeyValue_Table), MS_SYNC) == -1)
 	{
-		perror("msync");
+		//perror("msync");
 		// You can check errno to get more details about the error
 		int msync_error = errno;
 		fprintf(stderr, "msync error: %s\n", strerror(msync_error));
@@ -132,7 +151,7 @@ int main()
 
 	if (munmap(table, sizeof(struct KeyValue_Table)) == -1)
 	{
-		perror("munmap");
+		//perror("munmap");
 		// You can check errno to get more details about the error
 		int munmap_error = errno;
 		fprintf(stderr, "munmap error: %s\n", strerror(munmap_error));
