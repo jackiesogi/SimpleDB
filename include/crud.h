@@ -1,7 +1,8 @@
 #ifndef CRUD_H
 #define CRUD_H
-
 #include "./datastructure.h"
+
+extern unsigned int hash_function(const char *str, int max_entries);
 
 /************************************************************************/
 /************************************************************************/  
@@ -17,7 +18,7 @@
 /**    - if failed it will return false.                               **/
 /************************************************************************/
 /************************************************************************/
-bool store_value_by_key(struct KeyValue_Table *table, const char *key, const char *value);
+extern void store_value_by_key(struct KeyValue_Table *table, const char *search_key, const char *value);
 
 
 /*************************************************************************/
@@ -33,7 +34,7 @@ bool store_value_by_key(struct KeyValue_Table *table, const char *key, const cha
 /**    - if failed it will return NULL.                                 **/
 /*************************************************************************/
 /*************************************************************************/
-char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key);
+extern const char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key);
 
 
 /*************************************************************************/
@@ -48,6 +49,7 @@ char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key
 /**    (no return value)                                                **/
 /*************************************************************************/
 /*************************************************************************/
-void delete_value_by_key(struct KeyValue_Table *table, const char *search_key);
+extern void delete_value_by_key(struct KeyValue_Table *table, const char *search_key);
 
+// #include "../src/crud.c"
 #endif

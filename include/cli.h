@@ -1,14 +1,14 @@
 #ifndef CLI_H
 
 #define CLI_H
-void printWelcomePage();
-void printNewLine();
-void printGoodBye();
-void printSetUsage();
-void printGetUsage();
-void printDelUsage();
-void printHelpPage();
-void printCommandNotFound();
+extern void printWelcomePage();
+extern void printNewLine();
+extern void printGoodBye();
+extern void printSetUsage();
+extern void printGetUsage();
+extern void printDelUsage();
+extern void printHelpPage();
+extern void printCommandNotFound();
 
 
 // Color Macros

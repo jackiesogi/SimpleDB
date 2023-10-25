@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "../include/cli.h"
+#include <stdio.h>
 
 void printWelcomePage()
 {

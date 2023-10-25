@@ -1,8 +1,9 @@
 #ifndef DATA_STRUCTURE_H
 #define DATA_STRUCTURE_H
 
-#define FILENAME "../data/kvstore.dat"
-#define MAX_ENTRIES 100000
+#include <stdint.h>
+#define FILENAME "./data/kvstore.dat"
+#define MAX_ENTRIES 50
 #define QUERY_STRING_MAX 100
 #define KEY_SIZE 32
 #define VAL_SIZE 128
@@ -11,13 +12,21 @@ struct KeyValue
 {
 	char key[32];
 	char value[128];
+	struct KeyValue *next;
 };
 
 struct KeyValue_Table
 {
-	int count_entries;
-	struct KeyValue records[MAX_ENTRIES];
+	int32_t count_entries;
+	int32_t max_size;
+	struct KeyValue **records;
 };
+
+extern struct KeyValue_Table* initKeyValueTable();
+
+extern void freeKeyValueTable(struct KeyValue_Table *table);
+
+// #include "../src/datastructure.c"
 
 #endif
 

@@ -5,9 +5,10 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
+#include "../include/datastructure.h"
 #include "../include/crud.h"
 #include "../include/cli.h"
-#include "../include/datastructure.h"
 
 
 /********************************/
@@ -18,7 +19,7 @@ int main()
 	printWelcomePage();
 
 	int fd;
-	struct KeyValue_Table *table;
+	struct KeyValue_Table *table = NULL;
 
 	fd = open(FILENAME, O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd == -1)
@@ -31,19 +32,21 @@ int main()
 			exit(1);
 		}
 
+		table = initKeyValueTable();
 		// Initialize the file with zeros
 		ftruncate(fd, sizeof(struct KeyValue_Table));
 		
 	}
-
-	// Map the file into memory.
-	table = (struct KeyValue_Table *) mmap(NULL, sizeof(struct KeyValue_Table), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	if (table == MAP_FAILED)
+	else
 	{
-		perror("mmap");
-		exit(1);
+		// Map the file into memory.
+		table = (struct KeyValue_Table *) mmap(NULL, sizeof(struct KeyValue_Table), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+		if (table == MAP_FAILED)
+		{
+			perror("mmap");
+			exit(1);
+		}
 	}
-	
 
 	// the maximum length of query_string is 99 characters plus a terminator
 	char query_string[QUERY_STRING_MAX];
@@ -118,8 +121,25 @@ int main()
 		}
 	}
 
-	// Unmap and close the file.
-	munmap(table, sizeof(struct KeyValue_Table));
+	// Unmap and close the file.	
+	if (msync(table, sizeof(struct KeyValue_Table), MS_SYNC) == -1)
+	{
+		perror("msync");
+		// You can check errno to get more details about the error
+		int msync_error = errno;
+		fprintf(stderr, "msync error: %s\n", strerror(msync_error));
+	}
+
+	if (munmap(table, sizeof(struct KeyValue_Table)) == -1)
+	{
+		perror("munmap");
+		// You can check errno to get more details about the error
+		int munmap_error = errno;
+		fprintf(stderr, "munmap error: %s\n", strerror(munmap_error));
+	}
+
+
+	freeKeyValueTable(table);
 	close(fd);
 
 	return 0;
