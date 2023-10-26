@@ -11,7 +11,7 @@ which has similar function with <hiredis.h>
 #define HIREBIS_H
 
 #include "../include/datastructure.h"
-#define localhost "../data/kvstore.dat"
+#define localhost "./data/kvstore.dat"
 
 typedef struct rebisContext
 {
@@ -31,5 +31,7 @@ rebisReply;
 extern rebisContext* rebisConnect(const char* ip, int port);
 
 extern rebisReply* rebisCommand(rebisContext* instance, char* str);
+
+extern void rebisDisconnect(rebisContext* instance);
 
 #endif

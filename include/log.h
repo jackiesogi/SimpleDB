@@ -1,6 +1,6 @@
 #ifndef LOG_H
 #define LOG_H
 
-void logError(const char* message);
+void log_message(const char* message);
 
 #endif

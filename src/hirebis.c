@@ -7,11 +7,12 @@
 #include <string.h>
 #include <stdio.h>
 
+// 建立一個與 kvstore.dat 的
 rebisContext* rebisConnect(const char* ip, int port)
 {
     if ( strncmp(ip, "127.0.0.1", 9) == 0)
     {
-        struct Connection *connection = load_data_from_file(localhost);     // localhost只是 "../data/kvstore.dat" 這個檔案的代稱而已
+        struct Connection *connection = load_data_from_file(localhost);     // localhost只是 "./data/kvstore.dat" 這個檔案的代稱而已 定義在 hirebis.h
 
         if (connection->fd == -1)
         {
@@ -23,7 +24,7 @@ rebisContext* rebisConnect(const char* ip, int port)
         else
         {
             rebisContext *rebiscontext = (rebisContext*)malloc(sizeof(rebisContext));
-            rebiscontext->ip = "127.0.0.1";
+            rebiscontext->ip = strdup("127.0.0.1");
             rebiscontext->port = port;
             rebiscontext->connection = connection;
 
@@ -32,10 +33,10 @@ rebisContext* rebisConnect(const char* ip, int port)
     }
     else
     {
-        logError("Error: Connection refused");
-        return NULL;
+        log_message("Error: Connection refused");
     }
-    
+
+    return NULL;
 }
 
 rebisReply* rebisCommand(rebisContext* rebiscontext, char* str)
@@ -44,7 +45,12 @@ rebisReply* rebisCommand(rebisContext* rebiscontext, char* str)
     struct QueryObject *qobj = type_command(str, rebiscontext->connection);
 
     reply->type = 5;
-    reply->str = qobj->result;
+    reply->str = strdup(qobj->result);
 
     return reply;
+}
+
+void rebisDisconnect(rebisContext* rebiscontext)
+{
+    save_data_to_file(rebiscontext->connection);
 }

@@ -26,7 +26,7 @@ struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char 
     if( table->records[index].key[0] != '\0' )
     {
         qobj->status_code = 8;
-        qobj->result = "[Error] Collision occured!";
+        qobj->result = strdup("[Error] Collision occured!");    // strdup 會allocate新空間然後回傳新指標給string literal(in read-only memory section)
     }
 
     struct KeyValue *new_entry = (struct KeyValue *) malloc (sizeof(struct KeyValue));
@@ -39,10 +39,10 @@ struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char 
     table->records[index] = *new_entry;
     
     char buffer[100];
-    int written = snprintf(buffer, sizeof(buffer), "Inserted key '%s' with value '%s' at index '%d'", search_key, value, index);
+    int written = snprintf(buffer, sizeof(buffer), "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
     if (written >= 0 && written < (int)sizeof(buffer)) {
         qobj->status_code = 9;
-        qobj->result = buffer;
+        qobj->result = strdup(buffer);
     }
 
     return qobj;
@@ -54,29 +54,28 @@ struct QueryObject* retrieve_value_by_key(struct KeyValue_Table *table, const ch
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     struct KeyValue *current = &(table->records[index]);
 
-    while (current != NULL)
+    while (current != NULL && current->key[0] != '\0')
     {
         if (strcmp(current->key, search_key) == 0)
         {
             char buffer[100];
-            int written = snprintf(buffer, sizeof(buffer), "Found key '%s' with value '%s' at index '%d'", search_key, current->value, index);
+            int written = snprintf(buffer, sizeof(buffer), "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
             if (written >= 0 && written < (int)sizeof(buffer))
             {
                 qobj->status_code = 11;
-                qobj->result = buffer;
+                qobj->result = strdup(buffer);
             }
-            // printf("Found key '%s' with value '%s' at index '%d'\n", search_key, current->value, index);
             return qobj;
         }
         current = current->next;
     }
 
     char buffer[100];
-    int written = snprintf(buffer, sizeof(buffer), "Key '%s' not found", search_key);
+    int written = snprintf(buffer, sizeof(buffer), "Key '%s' not found.", search_key);
     if (written >= 0 && written < (int)sizeof(buffer))
     {
         qobj->status_code = 11;
-        qobj->result = buffer;
+        qobj->result = strdup(buffer);
     }
     return qobj; // Key not found
 }
@@ -103,13 +102,13 @@ struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     struct KeyValue *current = &(table->records[index]);
 
-    while (current != NULL)
+    while (current != NULL && current->key[0] != '\0')
     {
         if (strcmp(current->key, search_key) == 0)
         {
 
             char buffer[100];
-            int written = snprintf(buffer, sizeof(buffer), "Key '%s' with value '%s' at index '%d' deleted", search_key, current->value, index);
+            int written = snprintf(buffer, sizeof(buffer), "Key '%s' with value '%s' at index '%d' deleted.", search_key, current->value, index);
             
             // delete key and value
             current->key[0] = '\0';
@@ -119,7 +118,7 @@ struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char
             if (written >= 0 && written < (int)sizeof(buffer))
             {
                 qobj->status_code = 13;
-                qobj->result = buffer;
+                qobj->result = strdup(buffer);
             }
             return qobj;
         }
@@ -127,11 +126,11 @@ struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char
     }
 
     char buffer[100];
-    int written = snprintf(buffer, sizeof(buffer), "Key '%s' not found", search_key);
+    int written = snprintf(buffer, sizeof(buffer), "Key '%s' not found.", search_key);
     if (written >= 0 && written < (int)sizeof(buffer))
     {
         qobj->status_code = 13;
-        qobj->result = buffer;
+        qobj->result = strdup(buffer);
     }
     return qobj; // Key not found
 }
@@ -145,13 +144,13 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     {
         // Exit
         queryobject->status_code = 0;
-        queryobject->result = "Bye!";
+        queryobject->result = strdup("Bye!");
     }
     else if (strcmp(query_string, "\0") == 0)
     {
         // Nextline
         queryobject->status_code = 1;
-        queryobject->result = "127.0.0.1:8888 >";
+        queryobject->result = strdup("127.0.0.1:8888 > ");
     }
     else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
     {
@@ -168,7 +167,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {
             // set_usage
             queryobject->status_code = 10;
-            queryobject->result = "[Usage] SET <key> <value>";
+            queryobject->result = strdup("[Usage] SET <key> <value>");
         }
     }
     else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
@@ -178,7 +177,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {
             // get_usage
             queryobject->status_code = 12;
-            queryobject->result = "[Usage] GET <key>";
+            queryobject->result = strdup("[Usage] GET <key>");
         }
         else
         {
@@ -194,7 +193,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {   
             // del_usage
             queryobject->status_code = 14;
-            queryobject->result = "[Usage] DEL <key>";
+            queryobject->result = strdup("[Usage] DEL <key>");
         }
         else
         {
@@ -207,7 +206,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     {
         // help
         queryobject->status_code = 5;
-        queryobject->result = "\nSET <key> <value>\n    example : SET name Caroline\n    output  : OK\n    example : SET height 168\n    output  : OK\n\nGET <key>\n    example : GET name\n    output  : \"Caroline\"\n    example : GET weight\n    output  : (nil)\n\nDEL <key>\n    example : DEL height\n    output  : OK\n    example : DEL helloworld\n    output  : (nil)\n\nEXIT\n    example : EXIT\n    output  : Bye!\n";
+        queryobject->result = strdup("\nSET <key> <value>\n    example : SET name Caroline\n    output  : OK\n    example : SET height 168\n    output  : OK\n\nGET <key>\n    example : GET name\n    output  : \"Caroline\"\n    example : GET weight\n    output  : (nil)\n\nDEL <key>\n    example : DEL height\n    output  : OK\n    example : DEL helloworld\n    output  : (nil)\n\nEXIT\n    example : EXIT\n    output  : Bye!\n");
     }
 	else if (strncmp(query_string, "flushdb", 7) == 0 || strncmp(query_string, "FLUSHDB", 7) == 0)
 	{
@@ -219,7 +218,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             if (written >= 0 && written < (int)sizeof(buffer))
             {
                 queryobject->status_code = 6;
-                queryobject->result = buffer;
+                queryobject->result = strdup(buffer);
             }
     	}
 		else
@@ -235,7 +234,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         if (written >= 0 && written < (int)sizeof(buffer))
         {
             queryobject->status_code = 7;
-            queryobject->result = buffer; 
+            queryobject->result = strdup(buffer); 
         }
     }
 

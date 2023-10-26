@@ -10,8 +10,9 @@
 
 struct Connection* load_data_from_file(const char* filename)
 {
-    //loadData
+    // 打開 data/kvstore.dat (主要資料儲存的檔案)
     int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    // 準備一張hash table
     struct KeyValue_Table* table = initKeyValueTable();
 
     if (fd == -1)
@@ -50,6 +51,12 @@ struct Connection* load_data_from_file(const char* filename)
         exit(1);
     }
 
+    // 如果 kvstore.dat 裡面沒有任何紀錄 再初始化一次
+    if ( table->count_entries == 0 )
+    {
+        table->max_size = 50;
+    }
+
     struct Connection *newConnection = (struct Connection*)malloc(sizeof(struct Connection));
     newConnection->filename = filename;
     newConnection->fd = fd;
@@ -80,10 +87,3 @@ void free_connection(struct Connection *connection)
     close(connection->fd);
     free(connection);
 }
-
-// void leave_program(struct Connection* connection)
-// {
-//     freeKeyValueTable(connection->table);
-//     close(connection->fd);
-//     free(connection);
-// }
