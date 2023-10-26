@@ -8,7 +8,6 @@
 
 ### Features under development
 * Remote access.
-* Hash function to raising the querying performance.
 * Encryption on stored data.
 
 ## Build by yourself
