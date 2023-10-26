@@ -10,12 +10,14 @@ which has similar function with <hiredis.h>
 #ifndef
 #define HIREBIS_H
 
+#include "../include/datastructure.h"
 #define localhost "../data/kvstore.dat"
 
 typedef struct rebisContext
 {
     const char* ip;
     int port;
+    struct Connection* connection;
 }
 rebisContext;
 

@@ -22,6 +22,19 @@ struct KeyValue_Table
 	struct KeyValue records[MAX_ENTRIES];
 };
 
+struct Connection
+{
+	const char* filename;
+	int fd;
+	struct KeyValue_Table* table;	
+};
+
+struct QueryObject
+{
+	int status_code;
+	const char *result;
+};
+
 extern struct KeyValue_Table* initKeyValueTable();
 
 extern void freeKeyValueTable(struct KeyValue_Table *table);

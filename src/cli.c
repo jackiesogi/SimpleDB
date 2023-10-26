@@ -68,6 +68,8 @@ void printHelpPage()
 	puts("");
 }
 
+// printf("\nSET <key> <value>\n    example : SET name Caroline\n    output  : OK\n    example : SET height 168\n    output  : OK\n\nGET <key>\n    example : GET name\n    output  : \"Caroline\"\n    example : GET weight\n    output  : (nil)\n\nDEL <key>\n    example : DEL height\n    output  : OK\n    example : DEL helloworld\n    output  : (nil)\n\nEXIT\n    example : EXIT\n    output  : Bye!\n\n")
+
 void printCommandNotFound(char* query_string)
 {
     printf("[Error] Command \"%s\" not found.\n", query_string);

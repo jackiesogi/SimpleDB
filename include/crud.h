@@ -1,8 +1,7 @@
 #ifndef CRUD_H
 #define CRUD_H
-#include "./datastructure.h"
 
-extern unsigned int hash_function(const char *str, int max_entries);
+#include "./datastructure.h"
 
 /************************************************************************/
 /************************************************************************/  
@@ -18,7 +17,7 @@ extern unsigned int hash_function(const char *str, int max_entries);
 /**    - if failed it will return false.                               **/
 /************************************************************************/
 /************************************************************************/
-extern void store_value_by_key(struct KeyValue_Table *table, const char *search_key, const char *value);
+extern struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char *search_key, const char *value);
 
 
 /*************************************************************************/
@@ -34,7 +33,7 @@ extern void store_value_by_key(struct KeyValue_Table *table, const char *search_
 /**    - if failed it will return NULL.                                 **/
 /*************************************************************************/
 /*************************************************************************/
-extern const char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key);
+extern struct QueryObject* retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key);
 
 
 /*************************************************************************/
@@ -49,7 +48,8 @@ extern const char *retrieve_value_by_key(struct KeyValue_Table *table, const cha
 /**    (no return value)                                                **/
 /*************************************************************************/
 /*************************************************************************/
-extern void delete_value_by_key(struct KeyValue_Table *table, const char *search_key);
+extern struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char *search_key);
 
-// #include "../src/crud.c"
+extern struct QueryObject* type_command(char *query_string, struct Connection* connection);
+
 #endif

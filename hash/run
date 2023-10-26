@@ -1,3 +1,0 @@
-#!/bin/bash
-
-gcc -o ./main ./main.c ../src/cli.c ../src/crud.c  -g
