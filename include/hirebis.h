@@ -1,5 +1,4 @@
 /*
-
 This is a header file called "hirebis.h",
 providing an interface to retrieve data from "Rebis" (A fake database simulate Redis),
 which has similar function with <hiredis.h>
@@ -19,7 +18,7 @@ typedef struct rebisContext
     int port;
     struct Connection* connection;
 }
-rebisContext;
+rebisContext;   // typedef 定義別名後不用打 struct
 
 typedef struct rebisReply
 {

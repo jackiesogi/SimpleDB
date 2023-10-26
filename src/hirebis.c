@@ -16,9 +16,7 @@ rebisContext* rebisConnect(const char* ip, int port)
 
         if (connection->fd == -1)
         {
-            const char* message = "Error: Connection refused";
-            fprintf(stderr, "%s\n", message);
-
+            log_message("Error: No data file was found");
             return NULL;
         }
         else
@@ -45,7 +43,7 @@ rebisReply* rebisCommand(rebisContext* rebiscontext, char* str)
     struct QueryObject *qobj = type_command(str, rebiscontext->connection);
 
     reply->type = 5;
-    reply->str = strdup(qobj->result);
+    reply->str = strdup(qobj->message);
 
     return reply;
 }

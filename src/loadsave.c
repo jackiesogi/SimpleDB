@@ -54,7 +54,7 @@ struct Connection* load_data_from_file(const char* filename)
     // 如果 kvstore.dat 裡面沒有任何紀錄 再初始化一次
     if ( table->count_entries == 0 )
     {
-        table->max_size = 50;
+        table->max_size = MAX_ENTRIES;
     }
 
     struct Connection *newConnection = (struct Connection*)malloc(sizeof(struct Connection));

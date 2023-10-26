@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #define FILENAME "./data/kvstore.dat"
-#define MAX_ENTRIES 50
+#define MAX_ENTRIES 100000
 #define QUERY_STRING_MAX 100
 #define KEY_SIZE 32
 #define VAL_SIZE 128
@@ -32,13 +32,11 @@ struct Connection
 struct QueryObject
 {
 	int status_code;
-	const char *result;
+	const char *message;
 };
 
 extern struct KeyValue_Table* initKeyValueTable();
 
 extern void freeKeyValueTable(struct KeyValue_Table *table);
-
-// #include "../src/datastructure.c"
 
 #endif
