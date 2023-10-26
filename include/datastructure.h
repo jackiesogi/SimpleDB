@@ -42,37 +42,3 @@ extern void freeKeyValueTable(struct KeyValue_Table *table);
 // #include "../src/datastructure.c"
 
 #endif
-
-// void loadHashTable(struct KeyValue_Table *table)
-// {
-//     int fd = open(FILENAME, O_RDWR, S_IRUSR | S_IWUSR);
-// 	if (fd == -1)
-// 	{
-// 		// File doesn't exist, create it.
-// 		fd = open(FILENAME, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-// 		if (fd == -1)
-// 		{
-// 			perror("open");
-// 			exit(1);
-// 		}
-
-// 		// Initialize the file with zeros
-// 		ftruncate(fd, sizeof(struct KeyValue_Table));
-// 	}
-
-//     // Map the file into memory.
-//     table = (struct KeyValue_Table *) mmap(NULL, sizeof(struct KeyValue_Table), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-//     if (table == MAP_FAILED)
-//     {
-//         perror("mmap");
-//         exit(1);
-//     }
-
-//     // initHashTable(table, MAX_ENTRIES);
-
-// }
-
-// void saveHashTable(struct KeyValue_Table *table)
-// {
-
-// }

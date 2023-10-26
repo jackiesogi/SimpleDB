@@ -1,7 +1,11 @@
-#include "./hirebis.h"
+#include "../include/hirebis.h"
 #include "../include/datastructure.h"
-#inlcude "../include/log.h"
+#include "../include/log.h"
+#include "../include/loadsave.h"
+#include "../include/crud.h"
+#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 rebisContext* rebisConnect(const char* ip, int port)
 {
@@ -18,7 +22,7 @@ rebisContext* rebisConnect(const char* ip, int port)
         }
         else
         {
-            struct rebisContext rebiscontext = (rebisContext*)malloc(sizeof(rebisContext));
+            rebisContext *rebiscontext = (rebisContext*)malloc(sizeof(rebisContext));
             rebiscontext->ip = "127.0.0.1";
             rebiscontext->port = port;
             rebiscontext->connection = connection;

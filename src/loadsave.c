@@ -74,9 +74,16 @@ void save_data_to_file(const struct Connection* connection)
 
 }
 
-void leave_program(struct Connection* connection)
+void free_connection(struct Connection *connection)
 {
     freeKeyValueTable(connection->table);
     close(connection->fd);
     free(connection);
 }
+
+// void leave_program(struct Connection* connection)
+// {
+//     freeKeyValueTable(connection->table);
+//     close(connection->fd);
+//     free(connection);
+// }

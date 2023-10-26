@@ -9,6 +9,9 @@
 #include "../include/crud.h"
 #include "../include/cli.h"
 #include "../include/loadsave.h"
+#include "../include/crud.h"
+
+#include "../include/hirebis.h"
 
 enum query_string_status
 { 
@@ -39,9 +42,7 @@ int main()
 	const char* filename =  FILENAME;
 	struct Connection *connection = load_data_from_file(filename);
 
-    // // the maximum length of query_string is 99 characters plus a terminator
     char query_string[QUERY_STRING_MAX];
-	// struct QueryObject *queryobject = (struct QueryObject*)malloc(sizeof(struct QueryObject));
 	
     while (1)
     {
@@ -58,94 +59,25 @@ int main()
 
 		struct QueryObject* qobj = type_command(query_string, connection);
 
+		if(qobj->status_code == 0)
+		{
+			break;
+		}
 		printf("%s\n", qobj->result);
 
-		// obsolete
-        // if (strcmp(query_string, "exit") == 0 || strcmp(query_string, "EXIT") == 0)
-        // {
-        //     printGoodBye();
-        //     break; // Exit the command listening loop
-        // }
-        // else if (strcmp(query_string, "\0") == 0)
-        // {
-        //     continue;
-        // }
-        // else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
-        // {
-        //     char *args = query_string + 4; // Move the pointer past "set "
-        //     char *key = strtok(args, " ");
-        //     char *value = strtok(NULL, " ");
-        //     if (key != NULL && value != NULL)
-        //     {
-        //         store_value_by_key(connection->table, key, value);
-        //     }
-        //     else
-        //     {
-        //         printSetUsage();
-        //     }
-        // }
-        // else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
-        // {
-        //     char *key = query_string + 4; // Move the pointer past "get "
-        //     if (strcmp(key, " ") == 0)
-        //     {
-        //         printGetUsage();
-        //     }
-        //     else
-        //     {
-        //         retrieve_value_by_key(connection->table, key);
-        //     }
-        // }
-        // else if (strncmp(query_string, "del ", 4) == 0 || strncmp(query_string, "DEL ", 4) == 0)
-        // {
-        //     char *key = query_string + 4; // Move the pointer past "get "
-        //     if (strcmp(key, " ") == 0)
-        //     {
-        //         printDelUsage();
-        //     }
-        //     else
-        //     {
-        //         delete_value_by_key(connection->table, key);
-        //     }
-        // }
-        // else if (strncmp(query_string, "help", 4) == 0 || strncmp(query_string, "HELP", 4) == 0)
-        // {
-        //     printHelpPage();
-        // }
-		// else if (strncmp(query_string, "flushdb", 7) == 0 || strncmp(query_string, "FLUSHDB", 7) == 0)
-		// {
-		// 	 if (unlink(FILENAME) == 0)
-		// 	 {
-        // 		printf("File '%s' deleted successfully.\n", FILENAME);
-    	// 	}
-		// 	else
-		// 	{
-        // 		perror("unlink");
-    	// 	}
-		// }
-        // else
-        // {
-        //     printCommandNotFound(query_string);
-        // }
     }
 
-    // if (lseek(fd, 0, SEEK_SET) == -1)
-    // {
-    //     perror("lseek");
-    //     close(fd);
-    //     exit(1);
-    // }
+	// test hirebis.h
+	rebisContext *connect = rebisConnect("127.0.0.1", 8888);
+	rebisReply *reply = rebisCommand(connect, "GET jck");
+	printf("%s\n", reply->str);
+	free(connect);
+	free(reply);
 
-	// saveData
-    // if (write(fd, table, sizeof(struct KeyValue_Table)) == -1)
-    // {
-    //     perror("write");
-    // }
 
 	save_data_to_file(connection);
-	leave_program(connection);
-    // freeKeyValueTable(connection->table);
-    // close(connection->fd);
+	free_connection(connection);
+
 
     return 0;
 }

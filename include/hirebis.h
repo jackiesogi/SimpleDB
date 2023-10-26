@@ -24,7 +24,7 @@ rebisContext;
 typedef struct rebisReply
 {
     const char* str;
-    const int type;
+    int type;
 }
 rebisReply;
 
