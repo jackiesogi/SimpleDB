@@ -1,4 +1,4 @@
-# SimpleDB
+# Rebis DB
 ![](./image/thumbnail.png)
 
 ## Features
