@@ -29,8 +29,10 @@ rebisReply;
 
 extern rebisContext* rebisConnect(const char* ip, int port);
 
-extern rebisReply* rebisCommand(rebisContext* instance, char* str);
+extern rebisReply* rebisCommand(rebisContext* rebiscontext, char* str);
 
-extern void rebisDisconnect(rebisContext* instance);
+extern void rebisDisconnect(rebisContext* rebiscontext);
+
+extern void freeReplyObject(rebisReply* rebisreply);
 
 #endif

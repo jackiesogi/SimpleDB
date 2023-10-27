@@ -52,3 +52,8 @@ void rebisDisconnect(rebisContext* rebiscontext)
 {
     save_data_to_file(rebiscontext->connection);
 }
+
+void freeReplyObject(rebisReply* rebisreply)
+{
+    free(rebisreply);
+}

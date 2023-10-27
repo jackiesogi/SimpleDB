@@ -1,4 +1,5 @@
 #include "../include/datastructure.h"
+#include "../include/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,7 +9,8 @@ struct KeyValue_Table* initKeyValueTable()
 
 	if ( table )
 	{
-		printf("table does not need to initialize!\n");
+		//printf("table does not need to initialize!\n");
+		log_message("table does not need to initialize!");
 		return NULL;
 	}
 	
