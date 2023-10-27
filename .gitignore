@@ -1,7 +1,10 @@
 # Ignore the output data
 ./data/kvstore.dat
-./object/
-./release/
+./object/*
+./release/*
 
 # Ignore the executable
-./SimpleDB
+./rebis-cli
+
+*.log
+*.o
