@@ -12,6 +12,8 @@
 #include "../include/crud.h"
 #include "../include/log.h"
 
+#include "../include/hirebis.h"
+
 // status code 之後擴充功能時應該用的到
 enum query_string_status
 { 
@@ -91,7 +93,7 @@ int main()
 	// 將 Connection 結構內的 KeyValue_Table 寫回檔案
 	save_data_to_file(connection);
 	
-	free_connection(connection);
+	free_connection(connection); 
     
 	return 0;
 }

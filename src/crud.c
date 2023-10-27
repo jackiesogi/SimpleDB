@@ -27,6 +27,7 @@ struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char 
     {
         qobj->status_code = 8;
         qobj->message = strdup("[Error] Collision occured!");    // strdup 會allocate新空間然後回傳新指標給string literal(in read-only memory section)
+        // return qobj; // 發生碰撞的返回值要再想想，目前還是先覆蓋
     }
 
     struct KeyValue *new_entry = (struct KeyValue *) malloc (sizeof(struct KeyValue));
@@ -218,7 +219,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         }
 		else if (unlink(connection->filename) == 0)
 		{
-            char buffer[100];
+            char buffer[105];
             int written = snprintf(buffer, sizeof(buffer), "Data file '%s' deleted successfully.\nPlease restart rebis-cli to begin with new session.", connection->filename);
 
             if (written >= 0 && written < (int)sizeof(buffer))

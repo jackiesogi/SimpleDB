@@ -16,7 +16,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug benchmark",
-            "program": "${workspaceFolder}/benchmark",
+            "program": "${workspaceFolder}/test/benchmark",
             "args": [],
             "cwd": "${workspaceFolder}"
         }
