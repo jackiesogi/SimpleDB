@@ -31,12 +31,18 @@ struct Connection
 
 struct QueryObject
 {
+	const char *query_string;
 	int status_code;
+	const char *key;
+	const char *val;
 	const char *message;
 };
 
-extern struct KeyValue_Table* initKeyValueTable();
+extern struct KeyValue_Table* initKeyValueTable(int32_t max_size);
 
 extern void freeKeyValueTable(struct KeyValue_Table *table);
+
+// Todo : initialize a config table with given database path
+extern void initConfigTable(const char* dbPath);
 
 #endif
