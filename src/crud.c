@@ -23,13 +23,21 @@ struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char 
     unsigned int index = hash_function(search_key, table->max_size);
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
 
+    // query_string 存 當初query的指令，msg存query後要顯示的結果
+    char query_string[100], msg[256];
+    sprintf(query_string, "SET %s %s", search_key, value);
+
     if( table->records[index].key[0] != '\0' )
     {
+        qobj->query_string = strdup(query_string);
         qobj->status_code = 8;
+        qobj->key = strdup(search_key);
+        qobj->val = strdup(value);
         qobj->message = strdup("[Error] Collision occured!");    // strdup 會allocate新空間然後回傳新指標給string literal(in read-only memory section)
-        // return qobj; // 發生碰撞的返回值要再想想，目前還是先覆蓋
+        // return qobj; // 發生碰撞的返回值要再想想
     }
 
+    // 新增一個新的節點 再串上去
     struct KeyValue *new_entry = (struct KeyValue *) malloc (sizeof(struct KeyValue));
     strcpy(new_entry->key, search_key);
     strcpy(new_entry->value, value);
@@ -39,64 +47,51 @@ struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char 
     new_entry->next = &(table->records[index]);
     table->records[index] = *new_entry;
     
-    char buffer[100];
-    int written = snprintf(buffer, sizeof(buffer), "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
-    if (written >= 0 && written < (int)sizeof(buffer))
-    {
-        qobj->status_code = 9;
-        qobj->message = strdup(buffer);
-    }
+    sprintf(msg, "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
+    qobj->query_string = strdup(query_string);
+    qobj->status_code = 9;
+    qobj->key = strdup(search_key);
+    qobj->val = strdup(value);
+    qobj->message = strdup(msg); 
 
     return qobj;
 }
 
+// Todo : change the snprintf() to sprintf(), and add other attribute of
 struct QueryObject* retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key)
 {
 	unsigned int index = hash_function(search_key, table->max_size);
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     struct KeyValue *current = &(table->records[index]);
 
+    char query_string[100], msg[256];
+    sprintf(query_string, "GET %s", search_key);
+
     while (current != NULL && current->key[0] != '\0')
     {
         if (strcmp(current->key, search_key) == 0)
         {
-            char buffer[100];
-            int written = snprintf(buffer, sizeof(buffer), "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
-            if (written >= 0 && written < (int)sizeof(buffer))
-            {
-                qobj->status_code = 11;
-                qobj->message = strdup(buffer);
-            }
+            sprintf(msg, "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            
+            qobj->query_string = strdup(query_string);
+            qobj->status_code = 11;
+            qobj->key = strdup(search_key);
+            qobj->val = strdup(current->value);
+            qobj->message = strdup(msg);
             return qobj;
         }
         current = current->next;
     }
 
-    char buffer[100];
-    int written = snprintf(buffer, sizeof(buffer), "Key '%s' not found.", search_key);
-    if (written >= 0 && written < (int)sizeof(buffer))
-    {
-        qobj->status_code = 11;
-        qobj->message = strdup(buffer);
-    }
+    sprintf(msg, "Key '%s' not found.", search_key);
+    qobj->query_string = strdup(query_string);
+    qobj->status_code = 11;
+    qobj->key = strdup(search_key);
+    qobj->val = strdup("nil");
+    qobj->message = strdup(msg);
+    
     return qobj; // Key not found
 }
-
-// struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
-// {
-// 	unsigned int size = table->count_entries;
-// 	for(unsigned int i = 0; i < size; i++)
-// 	{
-// 		if (strcmp(table->records[i].key, search_key) == 0)
-// 		{
-// 			table->records[i].value[0] = '\0';
-// 			table->records[i].key[0] = '\0';
-// 			puts("OK");
-// 			return;
-// 		}
-// 	}
-// 	puts("(nil)");
-// }
 
 struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
 {
@@ -104,36 +99,37 @@ struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     struct KeyValue *current = &(table->records[index]);
 
+    char msg[256], query_string[100];
+
     while (current != NULL && current->key[0] != '\0')
     {
         if (strcmp(current->key, search_key) == 0)
         {
+            sprintf(msg, "Deleted key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
 
-            char buffer[100];
-            int written = snprintf(buffer, sizeof(buffer), "Deleted key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
-            
             // delete key and value
             current->key[0] = '\0';
             current->value[0] = '\0';
             table->count_entries--;
 
-            if (written >= 0 && written < (int)sizeof(buffer))
-            {
-                qobj->status_code = 13;
-                qobj->message = strdup(buffer);
-            }
+            qobj->query_string = strdup(query_string);
+            qobj->status_code = 13;
+            qobj->key = strdup(search_key);
+            qobj->val = strdup(current->value);
+            qobj->message = strdup(msg);
+            
             return qobj;
         }
         current = current->next;
     }
 
-    char buffer[100];
-    int written = snprintf(buffer, sizeof(buffer), "Key '%s' not found.", search_key);
-    if (written >= 0 && written < (int)sizeof(buffer))
-    {
-        qobj->status_code = 13;
-        qobj->message = strdup(buffer);
-    }
+    sprintf(msg, "Key '%s' not found.", search_key);
+    qobj->query_string = strdup(query_string);
+    qobj->status_code = 13;
+    qobj->key = strdup(search_key);
+    qobj->val = strdup("nil");
+    qobj->message = strdup(msg);
+
     return qobj; // Key not found
 }
 
