@@ -1,5 +1,6 @@
 #include "../include/loadsave.h"
 #include "../include/datastructure.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,12 +9,12 @@
 #include <unistd.h>
 #include <errno.h>
 
-struct Connection* load_data_from_file(const char* filename)
+struct Connection* load_data_from_file(const char* filename, int32_t table_size)
 {
     // 打開 data/kvstore.dat (主要資料儲存的檔案)
     int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     // 準備一張hash table
-    struct KeyValue_Table* table = initKeyValueTable();
+    struct KeyValue_Table* table = initKeyValueTable(table_size);
 
     if (fd == -1)
     {
@@ -54,7 +55,7 @@ struct Connection* load_data_from_file(const char* filename)
     // 如果 kvstore.dat 裡面沒有任何紀錄 再初始化一次
     if ( table->count_entries == 0 )
     {
-        table->max_size = MAX_ENTRIES;
+        table->max_size = table_size;
     }
 
     struct Connection *newConnection = (struct Connection*)malloc(sizeof(struct Connection));
