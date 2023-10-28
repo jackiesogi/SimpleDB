@@ -5,7 +5,7 @@
 
 // extern struct KeyValue_Table* load_data_from_file(int fd, void *table, const char* filenanme);
 
-extern struct Connection* load_data_from_file(const char* filenanme);
+extern struct Connection* load_data_from_file(const char* filenanme, int32_t table_size);
 
 extern void save_data_to_file(const struct Connection* connection);
 
