@@ -1,9 +1,10 @@
 #include "../include/datastructure.h"
 #include "../include/log.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-struct KeyValue_Table* initKeyValueTable()
+struct KeyValue_Table* initKeyValueTable(int32_t max_size)
 {
 	struct KeyValue_Table *table = NULL;
 
@@ -16,7 +17,7 @@ struct KeyValue_Table* initKeyValueTable()
 	
 	table = (struct KeyValue_Table*)calloc(1, sizeof(struct KeyValue_Table));
 
-	table->max_size = MAX_ENTRIES;
+	table->max_size = max_size;
 	table->count_entries = 0;
 
 	return table;
