@@ -45,7 +45,7 @@ enum query_string_status
 /**********************************/
 int main()
 {
-    printWelcomePage();
+    print_welcome_page();
 
 	// FILENAME 是預設的資料儲存檔案 定義在 datastructure.h
 	const char* filename = FILENAME;
@@ -58,7 +58,7 @@ int main()
 
     while (1)
     {	
-		printNewLine();
+		print_new_line();
 
         fgets(query_string, sizeof(query_string), stdin);
 
