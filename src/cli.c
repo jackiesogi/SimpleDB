@@ -1,7 +1,7 @@
 #include "../include/cli.h"
 #include <stdio.h>
 
-void printWelcomePage()
+void print_welcome_page()
 {
     printf(ANSI_COLOR_CYAN);
 	printf("###################################################### \n");
@@ -16,32 +16,32 @@ void printWelcomePage()
 	printf(ANSI_COLOR_RESET);
 }
 
-void printNewLine()
+void print_new_line()
 {
     printf("127.0.0.1:8888 > ");
 }
 
-void printGoodBye()
+void print_goodbye()
 {
     puts("Bye!");
 }
 
-void printSetUsage()
+void print_set_usage()
 {
     puts("[Usage] SET <key> <value>");
 }
 
-void printGetUsage()
+void print_get_usage()
 {
     puts("[Usage] GET <key>");
 }
 
-void printDelUsage()
+void print_del_usage()
 {
     puts("[Usage] DEL <key>");
 }
 
-void printHelpPage()
+void print_help_page()
 {
     puts("");
 	puts("SET <key> <value>");
@@ -70,7 +70,7 @@ void printHelpPage()
 
 // printf("\nSET <key> <value>\n    example : SET name Caroline\n    output  : OK\n    example : SET height 168\n    output  : OK\n\nGET <key>\n    example : GET name\n    output  : \"Caroline\"\n    example : GET weight\n    output  : (nil)\n\nDEL <key>\n    example : DEL height\n    output  : OK\n    example : DEL helloworld\n    output  : (nil)\n\nEXIT\n    example : EXIT\n    output  : Bye!\n\n")
 
-void printCommandNotFound(char* query_string)
+void print_command_not_found(char* query_string)
 {
     printf("[Error] Command \"%s\" not found.\n", query_string);
 }
