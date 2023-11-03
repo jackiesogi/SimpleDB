@@ -16,7 +16,7 @@ unsigned int hash_function(const char *str, int max_entries)
     return hash % max_entries;
 }
 
-struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char *search_key, const char *value)
+struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_key, const char *value)
 {
     unsigned int index = hash_function(search_key, table->max_size);
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
@@ -56,7 +56,7 @@ struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char 
 }
 
 // Todo : change the snprintf() to sprintf(), and add other attribute of
-struct QueryObject* retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key)
+struct QueryObject* table_get(struct KeyValue_Table *table, const char *search_key)
 {
 	unsigned int index = hash_function(search_key, table->max_size);
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
@@ -91,7 +91,7 @@ struct QueryObject* retrieve_value_by_key(struct KeyValue_Table *table, const ch
     return qobj; // Key not found
 }
 
-struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char *search_key)
+struct QueryObject* table_del(struct KeyValue_Table *table, const char *search_key)
 {
 	unsigned int index = hash_function(search_key, table->max_size);
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
@@ -131,7 +131,69 @@ struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char
     return qobj; // Key not found
 }
 
-// 兩層QueryObject不知道會不會浪費效能
+int get_list_index(struct List_Connection *lconnection, const char* listname)
+{
+    int len = lconnection->count_entries;
+    for(int i = 0; i < len; i++)
+    {
+        if (strncmp(lconnection->list[i].name, listname, 32) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int create_list(struct List_Connection *lconnection, const char *listname)
+{
+    int index = (lconnection->count_entries)++;
+    strncpy(lconnection->list[index].name, listname, 32);
+    return index;
+}
+
+struct QueryObject* list_left_push(struct List_Connection *lconnection, const char *listname, const char *value)
+{
+    int index = get_list_index(lconnection, listname);
+
+    if (index == -1)
+    {
+        index = create_list(lconnection, listname);
+    }
+
+    struct Node *newnode = (struct Node*)calloc(1, sizeof(struct Node));
+    strncpy(newnode->value, value, 128);
+
+    if (lconnection->list[index].head == NULL)
+    {
+        // The list is initially empty, so the new node becomes the head
+        lconnection->list[index].head = newnode;
+    }
+    else
+    {
+        // The list is not empty
+        newnode->next = lconnection->list[index].head;
+        lconnection->list[index].head->prev = newnode;
+        lconnection->list[index].head = newnode;
+    }
+
+    char query_string[100], msg[100];
+    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
+    sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
+
+    struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
+    qobj->query_string = strdup(query_string);
+    qobj->message = strdup(msg);
+    qobj->val = strdup(value);
+    //qobj->status_code = 
+
+    return qobj;
+}
+// struct QueryObject* list_right_push();
+// struct QueryObject* list_left_pop();
+// struct QueryObject* list_right_pop();
+// struct QueryObject* list_range();
+// struct QueryObject* list_length();
+
 struct QueryObject* type_command(char *query_string, struct Connection* connection)
 {   
     struct QueryObject *queryobject = (struct QueryObject*)malloc(sizeof(struct QueryObject));
@@ -157,7 +219,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {
             // set_ok
             free(queryobject);
-            return store_value_by_key(connection->table, key, value);
+            return table_set(connection->tc->table, key, value);
         }
         else
         {
@@ -179,7 +241,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {
             // get_ok
             free(queryobject);
-            return retrieve_value_by_key(connection->table, key);
+            return table_get(connection->tc->table, key);
         }
     }
     else if (strncmp(query_string, "del ", 4) == 0 || strncmp(query_string, "DEL ", 4) == 0)
@@ -195,7 +257,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {
             // del_ok
             free(queryobject);
-            return delete_value_by_key(connection->table, key);
+            return table_del(connection->tc->table, key);
         }
     }
     else if (strncmp(query_string, "help", 4) == 0 || strncmp(query_string, "HELP", 4) == 0)
@@ -206,15 +268,15 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     }
 	else if (strncmp(query_string, "flushdb", 7) == 0 || strncmp(query_string, "FLUSHDB", 7) == 0)
 	{
-        if ( access(connection->filename, F_OK) == -1 )
+        if ( access(connection->tc->filename, F_OK) == -1 || access(connection->lc->filename, F_OK) == -1)
         {
             queryobject->status_code = 6;
             queryobject->message = strdup("[Error] No data file was found.");
         }
-		else if (unlink(connection->filename) == 0)
+		else if (unlink(connection->tc->filename) == 0 && unlink(connection->lc->filename) == 0)
 		{
             char msg[105];
-            sprintf(msg, "Data file '%s' deleted successfully.\nPlease restart rebis-cli to begin with new session.", connection->filename);
+            sprintf(msg, "Data file '%s', '%s' deleted successfully.\nPlease restart rebis-cli to begin with new session.", connection->tc->filename, connection->lc->filename);
             queryobject->status_code = 6;
             queryobject->message = strdup(msg);
     	}
@@ -223,6 +285,29 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         	perror("unlink");
     	}
 	}
+    else if (strncmp(query_string, "lpush", 5) == 0 || strncmp(query_string, "LPUSH", 5) == 0 )
+    {
+        char *args = query_string + 6; // Move the pointer past "lpush "
+        char *listname = strtok(args, " ");
+        char *value = strtok(NULL, " ");
+        
+        if (listname != NULL && value != NULL)
+        {
+            list_left_push(connection->lc, listname, value);
+            
+            char msg[100];
+            sprintf(msg, "left push element \"%s\" to list \"%s\"", value, listname);
+
+            queryobject->status_code = 15;
+            queryobject->message = strdup(msg);
+        }
+        else
+        {
+            queryobject->status_code = 15;
+            queryobject->message = strdup("[Usage] LPUSH <list name> <value>");
+        }
+
+    }
     else
     {
         char msg[100];
