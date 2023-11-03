@@ -17,7 +17,7 @@
 /**    - if failed it will return false.                               **/
 /************************************************************************/
 /************************************************************************/
-bool store_value_by_key(struct KeyValue_Table *table, const char *key, const char *value);
+extern struct QueryObject* store_value_by_key(struct KeyValue_Table *table, const char *search_key, const char *value);
 
 
 /*************************************************************************/
@@ -33,7 +33,7 @@ bool store_value_by_key(struct KeyValue_Table *table, const char *key, const cha
 /**    - if failed it will return NULL.                                 **/
 /*************************************************************************/
 /*************************************************************************/
-char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key);
+extern struct QueryObject* retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key);
 
 
 /*************************************************************************/
@@ -48,6 +48,8 @@ char *retrieve_value_by_key(struct KeyValue_Table *table, const char *search_key
 /**    (no return value)                                                **/
 /*************************************************************************/
 /*************************************************************************/
-void delete_value_by_key(struct KeyValue_Table *table, const char *search_key);
+extern struct QueryObject* delete_value_by_key(struct KeyValue_Table *table, const char *search_key);
+
+extern struct QueryObject* type_command(char *query_string, struct Connection* connection);
 
 #endif
