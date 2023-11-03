@@ -213,14 +213,10 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         }
 		else if (unlink(connection->filename) == 0)
 		{
-            char buffer[105];
-            int written = snprintf(buffer, sizeof(buffer), "Data file '%s' deleted successfully.\nPlease restart rebis-cli to begin with new session.", connection->filename);
-
-            if (written >= 0 && written < (int)sizeof(buffer))
-            {
-                queryobject->status_code = 6;
-                queryobject->message = strdup(buffer);
-            }
+            char msg[105];
+            sprintf(msg, "Data file '%s' deleted successfully.\nPlease restart rebis-cli to begin with new session.", connection->filename);
+            queryobject->status_code = 6;
+            queryobject->message = strdup(msg);
     	}
 		else
 		{
@@ -229,14 +225,10 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
 	}
     else
     {
-        char buffer[100];
-        int written = snprintf(buffer, sizeof(buffer), "[Error] Command \"%s\" not found.", query_string);
-
-        if (written >= 0 && written < (int)sizeof(buffer))
-        {
-            queryobject->status_code = 7;
-            queryobject->message = strdup(buffer); 
-        }
+        char msg[100];
+        sprintf(msg, "[Error] Command \"%s\" not found.", query_string);
+        queryobject->status_code = 7;
+        queryobject->message = strdup(msg);
     }
 
     return queryobject;

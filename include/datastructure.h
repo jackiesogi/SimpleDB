@@ -13,6 +13,7 @@ struct KeyValue
 	char key[32];
 	char value[128];
 	struct KeyValue *next;
+	struct KeyValue *prev;	// for doubly linked list
 };
 
 struct KeyValue_Table
@@ -20,6 +21,12 @@ struct KeyValue_Table
 	int32_t count_entries;
 	int32_t max_size;
 	struct KeyValue records[MAX_ENTRIES];
+};
+
+struct KeyValue_List
+{
+	struct KeyValue *head;
+	struct KeyValue *tail;
 };
 
 struct Connection
