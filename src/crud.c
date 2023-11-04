@@ -16,6 +16,20 @@ unsigned int hash_function(const char *str, int max_entries)
     return hash % max_entries;
 }
 
+void set_query_info(struct QueryObject *qobj,
+                    const char *query_string,
+                    const int  status_code,
+                    const char *key,
+                    const char *value,
+                    const char *msg)
+{
+    qobj->query_string = strdup(query_string);
+    qobj->status_code  = status_code;
+    qobj->key = strdup(key);
+    qobj->val = strdup(value);
+    qobj->message = strdup(msg);
+}
+
 struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_key, const char *value)
 {
     unsigned int index = hash_function(search_key, table->max_size);
@@ -27,11 +41,12 @@ struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_k
 
     if( table->records[index].key[0] != '\0' )
     {
-        qobj->query_string = strdup(query_string);
-        qobj->status_code = 8;
-        qobj->key = strdup(search_key);
-        qobj->val = strdup(value);
-        qobj->message = strdup("[Error] Collision occured!");    // strdup 會allocate新空間然後回傳新指標給string literal(in read-only memory section)
+        set_query_info(qobj, query_string, 8, search_key, value, msg);
+        // qobj->query_string = strdup(query_string);
+        // qobj->status_code = 8;
+        // qobj->key = strdup(search_key);
+        // qobj->val = strdup(value);
+        // qobj->message = strdup("[Error] Collision occured!");    // strdup 會allocate新空間然後回傳新指標給string literal(in read-only memory section)
         // return qobj; // 發生碰撞的返回值要再想想
     }
 
@@ -151,7 +166,7 @@ int create_list(struct List_Connection *lconnection, const char *listname)
     return index;
 }
 
-struct QueryObject* list_left_push(struct List_Connection *lconnection, const char *listname, const char *value)
+struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *listname, const char *value)
 {
     int index = get_list_index(lconnection, listname);
 
@@ -182,15 +197,47 @@ struct QueryObject* list_left_push(struct List_Connection *lconnection, const ch
 
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     qobj->query_string = strdup(query_string);
-    qobj->message = strdup(msg);
+    qobj->key = strdup("N/A");
     qobj->val = strdup(value);
-    //qobj->status_code = 
+    qobj->status_code = 15;
+    qobj->message = strdup(msg);
 
     return qobj;
 }
-// struct QueryObject* list_right_push();
-// struct QueryObject* list_left_pop();
-// struct QueryObject* list_right_pop();
+// struct QueryObject* list_rpush(struct List_Connection *lconnection, const char *listname, const char *value)
+// {
+//     int index = get_list_index(lconnection, listname);
+
+//     if (index == -1)
+//     {
+//         create_list(lconnection, listname);
+//     }
+
+//     struct Node *newnode = (struct Node*)calloc(1, sizeof(struct Node));
+//     strncpy(newnode->value, value, 128);
+
+//     if (lconnection->list[index].tail == NULL)
+//     {
+//         lconnection->list[index].tail = newnode;
+//     }
+//     else
+//     {
+//         newnode->prev = lconnection->list[index].tail;
+//         lconnection->list[index].tail->next = newnode;
+//         lconnection->list[index].tail = newnode;
+//     }
+
+//     char query_string[100], msg[100];
+//     sprintf(query_string, "RPUSH %s %s", listname, value);
+//     sprintf(msg, "right push element \"%s\" into list \"%s\"", value, listname);
+
+//     struct QueryObject qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
+//     qobj.query_string = strdup(query_string);
+//     qobj.message = strdup(msg);
+//     qobj.val = value;
+// }
+// struct QueryObject* list_lpop();
+// struct QueryObject* list_rpop();
 // struct QueryObject* list_range();
 // struct QueryObject* list_length();
 
@@ -293,7 +340,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         
         if (listname != NULL && value != NULL)
         {
-            list_left_push(connection->lc, listname, value);
+            list_lpush(connection->lc, listname, value);
             
             char msg[100];
             sprintf(msg, "left push element \"%s\" to list \"%s\"", value, listname);

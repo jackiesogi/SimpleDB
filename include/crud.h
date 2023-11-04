@@ -52,4 +52,11 @@ extern struct QueryObject* table_del(struct KeyValue_Table *table, const char *s
 
 extern struct QueryObject* type_command(char *query_string, struct Connection* connection);
 
+extern void set_query_info(struct QueryObject *qobj,
+                    const char *query_string,
+                    const int  status_code,
+                    const char *key,
+                    const char *value,
+                    const char *msg);
+
 #endif
