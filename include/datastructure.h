@@ -58,12 +58,18 @@ struct List_Connection
 	struct Node_List list [MAX_ENTRIES];
 };
 
+struct SerializedListConnection
+{
+	char *vaueTable[MAX_ENTRIES][MAX_ENTRIES];
+};
+
 struct Connection
 {
 	struct Table_Connection *tc;
 	struct List_Connection  *lc;
 };
 
+// QueryObject
 struct QueryObject
 {
 	const char *query_string;
