@@ -150,6 +150,7 @@ struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *
 {
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     char query_string[100], msg[100];
+    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
 
     int index = get_list_index(lconnection, listname);
 
@@ -176,46 +177,45 @@ struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *
     // 成功push的話 在這個index的list又新增了一個新的元素
     lconnection->list[index].length++;
 
-    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
     sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
     set_query_info(qobj, query_string, 15, "N/A", value, msg);
 
     return qobj;
 }
 
-struct QueryObject* list_lpop(struct List_Connection *lconnection, const char *listname, const char *value)
+struct QueryObject* list_lpop(struct List_Connection *lconnection, const char *listname)
 {
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     char query_string[100], msg[100];
+    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
 
     int index = get_list_index(lconnection, listname);
 
     if (index == -1)
     {
-        index = create_list(lconnection, listname);
+        sprintf(msg, "[Error] List \"%s\" not exist.", listname);
+        set_query_info(qobj, query_string, 16, "N/A", "N/A", msg);
     }
-
-    struct Node *newnode = (struct Node*)calloc(1, sizeof(struct Node));
-    strncpy(newnode->value, value, 128);
 
     if (lconnection->list[index].head == NULL)
     {
         // Nothing to pop
-        set_query_info(qobj, query_string, const int status_code, const char *key, const char *value, const char *msg)
+        sprintf(msg, "[Error] Nothing to pop in List \"%s\"", listname);
+        set_query_info(qobj, query_string, 16, "N/A", "N/A", msg);
     }
     else
     {
-        // The list is not empty
-        newnode->next = lconnection->list[index].head;
-        lconnection->list[index].head->prev = newnode;
-        lconnection->list[index].head = newnode;
-    }
-    // 成功push的話 在這個index的list又新增了一個新的元素
-    lconnection->list[index].length++;
+        // head = head->next
+        lconnection->list[index].head = lconnection->list[index].head->next;
+        // free(head->prev)
+        free(lconnection->list[index].head->prev);
 
-    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
-    sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
-    set_query_info(qobj, query_string, 15, "N/A", value, msg);
+        // length減1
+        lconnection->list[index].length--;
+
+        sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
+        set_query_info(qobj, query_string, 15, "N/A", value, msg);
+    }
 
     return qobj;
 }
