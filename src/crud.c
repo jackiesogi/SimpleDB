@@ -148,11 +148,12 @@ int create_list(struct List_Connection *lconnection, const char *listname)
 
 struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *listname, const char *value)
 {
+
+    int index = get_list_index(lconnection, listname);
+
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
     char query_string[100], msg[100];
     sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
-
-    int index = get_list_index(lconnection, listname);
 
     if (index == -1)
     {
@@ -177,7 +178,7 @@ struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *
     // 成功push的話 在這個index的list又新增了一個新的元素
     lconnection->list[index].length++;
 
-    sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
+    sprintf(msg, "left push \"%s\" into list \"%s\"", value, lconnection->list[index].name);
     set_query_info(qobj, query_string, 15, "N/A", value, msg);
 
     return qobj;
@@ -185,11 +186,11 @@ struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *
 
 struct QueryObject* list_lpop(struct List_Connection *lconnection, const char *listname)
 {
-    struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
-    char query_string[100], msg[100];
-    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
-
     int index = get_list_index(lconnection, listname);
+
+    struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
+    char query_string[168], msg[188], value[128];
+    sprintf(query_string, "LPOP %s %s", lconnection->list[index].name, value);
 
     if (index == -1)
     {
@@ -205,52 +206,24 @@ struct QueryObject* list_lpop(struct List_Connection *lconnection, const char *l
     }
     else
     {
+        // Copy the poped value
+        strncpy(value, lconnection->list[index].head->value, 128);
+        struct Node *temp = lconnection->list[index].head;
         // head = head->next
-        lconnection->list[index].head = lconnection->list[index].head->next;
+        lconnection->list[index].head = temp->next;
         // free(head->prev)
-        free(lconnection->list[index].head->prev);
+        free(temp);
 
         // length減1
         lconnection->list[index].length--;
 
-        sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
+        sprintf(msg, "left pop \"%s\" from list \"%s\"", value, lconnection->list[index].name);
         set_query_info(qobj, query_string, 15, "N/A", value, msg);
     }
 
     return qobj;
 }
-// struct QueryObject* list_rpush(struct List_Connection *lconnection, const char *listname, const char *value)
-// {
-//     int index = get_list_index(lconnection, listname);
 
-//     if (index == -1)
-//     {
-//         create_list(lconnection, listname);
-//     }
-
-//     struct Node *newnode = (struct Node*)calloc(1, sizeof(struct Node));
-//     strncpy(newnode->value, value, 128);
-
-//     if (lconnection->list[index].tail == NULL)
-//     {
-//         lconnection->list[index].tail = newnode;
-//     }
-//     else
-//     {
-//         newnode->prev = lconnection->list[index].tail;
-//         lconnection->list[index].tail->next = newnode;
-//         lconnection->list[index].tail = newnode;
-//     }
-
-//     char query_string[100], msg[100];
-//     sprintf(query_string, "RPUSH %s %s", listname, value);
-//     sprintf(msg, "right push element \"%s\" into list \"%s\"", value, listname);
-
-//     struct QueryObject qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
-//     qobj.query_string = strdup(query_string);
-//     qobj.message = strdup(msg);
-//     qobj.val = value;
-// }
 // struct QueryObject* list_lpop();
 // struct QueryObject* list_rpop();
 // struct QueryObject* list_range();
@@ -347,11 +320,32 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         
         if (listname != NULL && value != NULL)
         {
-            list_lpush(connection->lc, listname, value);
+            return list_lpush(connection->lc, listname, value);
             
-            char msg[100];
-            sprintf(msg, "left push element \"%s\" to list \"%s\"", value, listname);
-            set_query_info(queryobject, query_string, 15, "N/A", "N/A", msg);
+            // char msg[100];
+            // sprintf(msg, "left push element \"%s\" to list \"%s\"", value, listname);
+            // set_query_info(queryobject, query_string, 15, "N/A", "N/A", msg);
+        }
+        else
+        {
+            set_query_info(queryobject, query_string, 15, "N/A", "N/A", "[Usage] LPUSH <list name> <value>");
+        }
+
+    }
+    else if (strncmp(query_string, "lpop", 4) == 0 || strncmp(query_string, "LPOP", 4) == 0 )
+    {
+        char *args = query_string + 5; // Move the pointer past "lpush "
+        char *listname = strtok(args, " ");
+        
+        if (listname != NULL)
+        {
+            return list_lpop(connection->lc, listname);
+            // char value[128];
+            // strncpy(value, list_lpop(connection->lc, listname)->val, 128);
+            
+            // char msg[100];
+            // sprintf(msg, "left pop element \"%s\" to list \"%s\"", value, listname);
+            // set_query_info(queryobject, query_string, 15, "N/A", "N/A", msg);
         }
         else
         {
