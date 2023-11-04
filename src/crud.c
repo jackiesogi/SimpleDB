@@ -42,12 +42,6 @@ struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_k
     if( table->records[index].key[0] != '\0' )
     {
         set_query_info(qobj, query_string, 8, search_key, value, msg);
-        // qobj->query_string = strdup(query_string);
-        // qobj->status_code = 8;
-        // qobj->key = strdup(search_key);
-        // qobj->val = strdup(value);
-        // qobj->message = strdup("[Error] Collision occured!");    // strdup 會allocate新空間然後回傳新指標給string literal(in read-only memory section)
-        // return qobj; // 發生碰撞的返回值要再想想
     }
 
     // 新增一個新的節點 再串上去
@@ -59,13 +53,8 @@ struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_k
 
     new_entry->next = &(table->records[index]);
     table->records[index] = *new_entry;
-    
     sprintf(msg, "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
-    qobj->query_string = strdup(query_string);
-    qobj->status_code = 9;
-    qobj->key = strdup(search_key);
-    qobj->val = strdup(value);
-    qobj->message = strdup(msg); 
+    set_query_info(qobj, query_string, 9, search_key, value, msg); 
 
     return qobj;
 }
@@ -85,24 +74,14 @@ struct QueryObject* table_get(struct KeyValue_Table *table, const char *search_k
         if (strcmp(current->key, search_key) == 0)
         {
             sprintf(msg, "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
-            
-            qobj->query_string = strdup(query_string);
-            qobj->status_code = 11;
-            qobj->key = strdup(search_key);
-            qobj->val = strdup(current->value);
-            qobj->message = strdup(msg);
+            set_query_info(qobj, query_string, 11, search_key, current->value, msg);
             return qobj;
         }
         current = current->next;
     }
 
     sprintf(msg, "Key '%s' not found.", search_key);
-    qobj->query_string = strdup(query_string);
-    qobj->status_code = 11;
-    qobj->key = strdup(search_key);
-    qobj->val = strdup("nil");
-    qobj->message = strdup(msg);
-    
+    set_query_info(qobj, query_string, 11, search_key, "nil", msg);
     return qobj; // Key not found
 }
 
@@ -124,24 +103,16 @@ struct QueryObject* table_del(struct KeyValue_Table *table, const char *search_k
             current->key[0] = '\0';
             current->value[0] = '\0';
             table->count_entries--;
-
-            qobj->query_string = strdup(query_string);
-            qobj->status_code = 13;
-            qobj->key = strdup(search_key);
-            qobj->val = strdup(current->value);
-            qobj->message = strdup(msg);
             
+            set_query_info(qobj, query_string, 13, search_key, current->value, msg);
+
             return qobj;
         }
         current = current->next;
     }
 
     sprintf(msg, "Key '%s' not found.", search_key);
-    qobj->query_string = strdup(query_string);
-    qobj->status_code = 13;
-    qobj->key = strdup(search_key);
-    qobj->val = strdup("nil");
-    qobj->message = strdup(msg);
+    set_query_info(qobj, query_string, 13, search_key, "nil", msg);
 
     return qobj; // Key not found
 }
@@ -196,11 +167,7 @@ struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *
     sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
 
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
-    qobj->query_string = strdup(query_string);
-    qobj->key = strdup("N/A");
-    qobj->val = strdup(value);
-    qobj->status_code = 15;
-    qobj->message = strdup(msg);
+    set_query_info(qobj, query_string, 15, "N/A", value, msg);
 
     return qobj;
 }
@@ -248,14 +215,12 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     if (strcmp(query_string, "exit") == 0 || strcmp(query_string, "EXIT") == 0)
     {
         // Exit
-        queryobject->status_code = 0;
-        queryobject->message = strdup("Bye!");
+        set_query_info(queryobject, "EXIT", 0, "N/A", "N/A", "Bye!");
     }
     else if (strcmp(query_string, "\0") == 0)
     {
         // Nextline
-        queryobject->status_code = 1;
-        queryobject->message = strdup("127.0.0.1:8888 > ");
+        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "127.0.0.1:8888> ");
     }
     else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
     {
@@ -271,8 +236,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         else
         {
             // set_usage
-            queryobject->status_code = 10;
-            queryobject->message = strdup("[Usage] SET <key> <value>");
+            set_query_info(queryobject, query_string, 10, key, value, "[Usage] SET <key> <value>");
         }
     }
     else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
@@ -281,8 +245,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         if (strcmp(key, " ") == 0)
         {
             // get_usage
-            queryobject->status_code = 12;
-            queryobject->message = strdup("[Usage] GET <key>");
+            set_query_info(queryobject, query_string, 12, key, "N/A", "[Usage] GET <key>");
         }
         else
         {
@@ -297,8 +260,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         if (strcmp(key, " ") == 0)
         {   
             // del_usage
-            queryobject->status_code = 14;
-            queryobject->message = strdup("[Usage] DEL <key>");
+            set_query_info(queryobject, query_string, 14, key, "N/A", "[Usage] DEL <key>");
         }
         else
         {
@@ -310,22 +272,19 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     else if (strncmp(query_string, "help", 4) == 0 || strncmp(query_string, "HELP", 4) == 0)
     {
         // help
-        queryobject->status_code = 5;
-        queryobject->message = strdup("\nSET <key> <value>\n    example : SET name Caroline\n    output  : OK\n    example : SET height 168\n    output  : OK\n\nGET <key>\n    example : GET name\n    output  : \"Caroline\"\n    example : GET weight\n    output  : (nil)\n\nDEL <key>\n    example : DEL height\n    output  : OK\n    example : DEL helloworld\n    output  : (nil)\n\nEXIT\n    example : EXIT\n    output  : Bye!\n");
+        set_query_info(queryobject, query_string, 5, "N/A", "N/A", "\nSET <key> <value>\n    example : SET name Caroline\n    output  : OK\n    example : SET height 168\n    output  : OK\n\nGET <key>\n    example : GET name\n    output  : \"Caroline\"\n    example : GET weight\n    output  : (nil)\n\nDEL <key>\n    example : DEL height\n    output  : OK\n    example : DEL helloworld\n    output  : (nil)\n\nEXIT\n    example : EXIT\n    output  : Bye!\n");
     }
 	else if (strncmp(query_string, "flushdb", 7) == 0 || strncmp(query_string, "FLUSHDB", 7) == 0)
 	{
         if ( access(connection->tc->filename, F_OK) == -1 || access(connection->lc->filename, F_OK) == -1)
         {
-            queryobject->status_code = 6;
-            queryobject->message = strdup("[Error] No data file was found.");
+            set_query_info(queryobject, query_string, 6, "N/A", "N/A", "[Error] No data file was found.");
         }
 		else if (unlink(connection->tc->filename) == 0 && unlink(connection->lc->filename) == 0)
 		{
             char msg[105];
             sprintf(msg, "Data file '%s', '%s' deleted successfully.\nPlease restart rebis-cli to begin with new session.", connection->tc->filename, connection->lc->filename);
-            queryobject->status_code = 6;
-            queryobject->message = strdup(msg);
+            set_query_info(queryobject, query_string, 6, "N/A", "N/A", msg);
     	}
 		else
 		{
@@ -344,14 +303,11 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             
             char msg[100];
             sprintf(msg, "left push element \"%s\" to list \"%s\"", value, listname);
-
-            queryobject->status_code = 15;
-            queryobject->message = strdup(msg);
+            set_query_info(queryobject, query_string, 15, "N/A", "N/A", msg);
         }
         else
         {
-            queryobject->status_code = 15;
-            queryobject->message = strdup("[Usage] LPUSH <list name> <value>");
+            set_query_info(queryobject, query_string, 15, "N/A", "N/A", "[Usage] LPUSH <list name> <value>");
         }
 
     }
@@ -359,8 +315,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     {
         char msg[100];
         sprintf(msg, "[Error] Command \"%s\" not found.", query_string);
-        queryobject->status_code = 7;
-        queryobject->message = strdup(msg);
+        set_query_info(queryobject, query_string, 7, "N/A", "N/A", msg);
     }
 
     return queryobject;
