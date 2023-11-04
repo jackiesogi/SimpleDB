@@ -1,5 +1,6 @@
 /* Source file of crud.h */
 #include "../include/datastructure.h"
+#include "../include/log.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -23,11 +24,18 @@ void set_query_info(struct QueryObject *qobj,
                     const char *value,
                     const char *msg)
 {
-    qobj->query_string = strdup(query_string);
-    qobj->status_code  = status_code;
-    qobj->key = strdup(key);
-    qobj->val = strdup(value);
-    qobj->message = strdup(msg);
+    if (qobj && query_string && key && value && msg)
+    {
+        qobj->query_string = strdup(query_string);
+        qobj->status_code  = status_code;
+        qobj->key = strdup(key);
+        qobj->val = strdup(value);
+        qobj->message = strdup(msg);
+    }
+    else
+    {
+        log_message("[Error] set_query_info() failed due to assignment of null pointer.");
+    }
 }
 
 struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_key, const char *value)
@@ -130,6 +138,7 @@ int get_list_index(struct List_Connection *lconnection, const char* listname)
     return -1;
 }
 
+// get_list_index()沒有找到的時候才會create_list()
 int create_list(struct List_Connection *lconnection, const char *listname)
 {
     int index = (lconnection->count_entries)++;
@@ -139,6 +148,9 @@ int create_list(struct List_Connection *lconnection, const char *listname)
 
 struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *listname, const char *value)
 {
+    struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
+    char query_string[100], msg[100];
+
     int index = get_list_index(lconnection, listname);
 
     if (index == -1)
@@ -161,12 +173,48 @@ struct QueryObject* list_lpush(struct List_Connection *lconnection, const char *
         lconnection->list[index].head->prev = newnode;
         lconnection->list[index].head = newnode;
     }
+    // 成功push的話 在這個index的list又新增了一個新的元素
+    lconnection->list[index].length++;
 
-    char query_string[100], msg[100];
     sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
     sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
+    set_query_info(qobj, query_string, 15, "N/A", value, msg);
 
+    return qobj;
+}
+
+struct QueryObject* list_lpop(struct List_Connection *lconnection, const char *listname, const char *value)
+{
     struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
+    char query_string[100], msg[100];
+
+    int index = get_list_index(lconnection, listname);
+
+    if (index == -1)
+    {
+        index = create_list(lconnection, listname);
+    }
+
+    struct Node *newnode = (struct Node*)calloc(1, sizeof(struct Node));
+    strncpy(newnode->value, value, 128);
+
+    if (lconnection->list[index].head == NULL)
+    {
+        // Nothing to pop
+        set_query_info(qobj, query_string, const int status_code, const char *key, const char *value, const char *msg)
+    }
+    else
+    {
+        // The list is not empty
+        newnode->next = lconnection->list[index].head;
+        lconnection->list[index].head->prev = newnode;
+        lconnection->list[index].head = newnode;
+    }
+    // 成功push的話 在這個index的list又新增了一個新的元素
+    lconnection->list[index].length++;
+
+    sprintf(query_string, "LPUSH %s %s", lconnection->list[index].name, value);
+    sprintf(msg, "left push %s into list %s", value, lconnection->list[index].name);
     set_query_info(qobj, query_string, 15, "N/A", value, msg);
 
     return qobj;
@@ -236,7 +284,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         else
         {
             // set_usage
-            set_query_info(queryobject, query_string, 10, key, value, "[Usage] SET <key> <value>");
+            set_query_info(queryobject, query_string, 10, key, "N/A", "[Usage] SET <key> <value>");
         }
     }
     else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)

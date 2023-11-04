@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <assert.h>
 
 struct Table_Connection* load_table_from_file(const char* filename, int32_t table_size)
 {
@@ -97,15 +98,141 @@ void free_connection(struct Connection *connection)
     free(connection);
 }
 
-struct List_Connection* load_list_from_file(const char *filename)
-{
+// struct List_Connection* load_list_from_file(const char *filename)
+// {
+//     int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+//     if (fd == -1)
+//     {
+//         perror("open");
+//     }
+    
+//     struct List_Connection *newConnection = (struct List_Connection *)malloc(sizeof(struct List_Connection));
+//     if (newConnection == NULL) {
+//         perror("malloc");
+//         return NULL;
+//     }
+
+//     // Initialize the fields
+//     newConnection->filename = filename;
+//     newConnection->fd = fd;
+//     newConnection->count_entries = 0; // Initialize count_entries
+
+//     // Read the data from the file and populate the list array
+//     ssize_t bytes_read = read(fd, newConnection->list, sizeof(newConnection->list));
+//     if (bytes_read == -1) {
+//         perror("read");
+//         free(newConnection);
+//         return NULL;
+//     }
+
+//     // Calculate the number of entries based on the bytes read
+//     newConnection->count_entries = bytes_read / sizeof(struct Node_List);
+
+//     return newConnection;
+// }
+
+// void save_list_to_file(const struct List_Connection *connection)
+// {
+//     if (lseek(connection->fd, 0, SEEK_SET) == -1)
+//     {
+//         perror("lseek");
+//         close(connection->fd);
+//         exit(1);
+//     }
+
+//     for (int i = 0; i < connection->count_entries; i++)
+//     {
+//         if (write(connection->fd, connection->list, sizeof((connection->list[i]))) == -1)
+//         {
+//             perror("write");
+//         }
+//     }
+// }
+
+
+// void save_list_to_file(const struct List_Connection *lconnection)
+// {
+//     struct SerializedListConnection *slc = (struct SerializedListConnection*)calloc(1, sizeof(struct SerializedListConnection));
+
+//     for (int i = 0; i < MAX_ENTRIES; i++)
+//     {
+//         int element = 0;
+//         for (struct Node *current = lconnection->list[i].head; current != NULL; current = current->next)
+//         {
+//             slc->vaueTable[i][element++] = current->value;
+//             if (write(lconnection->fd, current, sizeof(struct Node)) == -1)
+//             {
+//                     perror("write");
+//             }
+//         }
+//     }   
+// }
+
+// Function to save a List_Connection to a file
+void save_list_to_file(const struct List_Connection *connection) {
+    if (lseek(connection->fd, 0, SEEK_SET) == -1) {
+        perror("lseek");
+        close(connection->fd);
+        exit(1);
+    }
+
+    // Save the count_entries attribute
+    if (write(connection->fd, &connection->count_entries, sizeof(int)) == -1) {
+        perror("write count_entries");
+        close(connection->fd);
+        exit(1);
+    }
+
+    // Save the data for each Node in the list
+    for (int i = 0; i < connection->count_entries; i++)
+    {
+        int elements_written = 0;
+        const struct Node_List *list = &(connection->list[i]);
+        
+        // 寫入list的名稱 (32 Bytes)
+        write(connection->fd, &(connection->list[i].name), sizeof(connection->list[i].name));
+        // 寫入list的長度(4 Bytes)
+        write(connection->fd, &(connection->list[i].length), sizeof(connection->list[i].length));
+        
+        for (struct Node *current = list->head; current != NULL; current = current->next)
+        {
+            if (write(connection->fd, current->value, sizeof(current->value)) == -1)
+            {
+                perror("write value");
+                close(connection->fd);
+                exit(1);
+            }
+            elements_written++;
+        }
+
+        // if (elements_written != connection->list[i].length)
+        // {
+        //     log_message("[AssertionFailed] The expected list length is not equal to true list length");
+        // }
+        printf("list length recorded on instance: %d  written length: %d", connection->list[i].length, elements_written);
+        //assert(elements_written == connection->list[i].length);
+    }
+
+    // Ensure that the file is large enough to contain the saved data
+    off_t fileSize = lseek(connection->fd, 0, SEEK_CUR);
+    if (fileSize == -1) {
+        perror("lseek");
+        close(connection->fd);
+        exit(1);
+    }
+}
+
+
+// Function to load a List_Connection from a file
+struct List_Connection *load_list_from_file(const char *filename) {
     int fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-    if (fd == -1)
-    {
+    if (fd == -1) {
         perror("open");
+        return NULL;
     }
-    
+
     struct List_Connection *newConnection = (struct List_Connection *)malloc(sizeof(struct List_Connection));
     if (newConnection == NULL) {
         perror("malloc");
@@ -113,38 +240,95 @@ struct List_Connection* load_list_from_file(const char *filename)
     }
 
     // Initialize the fields
+    // 需要想想這個initialization要放在這邊還是initNodeList()
     newConnection->filename = filename;
     newConnection->fd = fd;
     newConnection->count_entries = 0; // Initialize count_entries
 
-    // Read the data from the file and populate the list array
-    ssize_t bytes_read = read(fd, newConnection->list, sizeof(newConnection->list));
-    if (bytes_read == -1) {
-        perror("read");
+    // Check the file size
+    off_t fileSize = lseek(fd, 0, SEEK_END);
+    if (fileSize == -1)
+    {
+        perror("lseek");
         free(newConnection);
+        close(fd);
         return NULL;
     }
 
-    // Calculate the number of entries based on the bytes read
-    newConnection->count_entries = bytes_read / sizeof(struct Node_List);
+    if (fileSize >= (off_t)sizeof(int)) {
+        // Read the count_entries attribute
+        if (lseek(fd, 0, SEEK_SET) == -1) {
+            perror("lseek");
+            free(newConnection);
+            close(fd);
+            return NULL;
+        }
 
-    return newConnection;
-}
+        if (read(fd, &newConnection->count_entries, sizeof(int)) == -1) {
+            perror("read count_entries");
+            free(newConnection);
+            close(fd);
+            return NULL;
+        }
 
-void save_list_to_file(const struct List_Connection *connection)
-{
-    if (lseek(connection->fd, 0, SEEK_SET) == -1)
-    {
-        perror("lseek");
-        close(connection->fd);
-        exit(1);
-    }
+        // Read and load the data for each Node in the list
+        for (int i = 0; i < newConnection->count_entries; i++) {
+            struct Node_List *list = &(newConnection->list[i]);
+            list->head = NULL;
+            list->tail = NULL;
 
-    for (int i = 0; i < connection->count_entries; i++)
-    {
-        if (write(connection->fd, connection->list, sizeof((connection->list[i]))) == -1)
-        {
-            perror("write");
+            char listname[32];
+            int element_read = 0;
+            int length = 0;
+
+            // 讀list的name
+            read(fd, &listname, sizeof(listname));
+            strncpy(newConnection->list[i].name, listname, 32);
+            // 讀list的length
+            read(fd, &length, sizeof(length));
+            newConnection->list[i].length = length;
+
+            while (1)
+            {    
+                if (element_read == length)
+                {
+                    break;
+                }
+
+                char value[128];
+                if (read(fd, value, sizeof(value)) == -1)
+                {
+                    perror("read value");
+                    free(newConnection);
+                    close(fd);
+                    return NULL;
+                }
+
+                struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+
+                strncpy(newNode->value, value, sizeof(value));
+                newNode->next = NULL;
+                newNode->prev = NULL;
+
+                if (list->tail == NULL)
+                {
+                    list->head = newNode;
+                    list->tail = newNode;
+                }
+                else
+                {
+                    // 把新讀進來的value放到tail
+                    list->tail->next = newNode;
+                    newNode->prev = list->tail;
+                    list->tail = newNode;
+                }
+
+                element_read++;
+            }
         }
     }
+    // 到檔案結束的offset沒有大於一個integer(照理說就是檔案是空的)
+    else { }
+
+    return newConnection;
 }
