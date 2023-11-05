@@ -205,13 +205,8 @@ void save_list_to_file(const struct List_Connection *connection) {
             }
             elements_written++;
         }
-
-        // if (elements_written != connection->list[i].length)
-        // {
-        //     log_message("[AssertionFailed] The expected list length is not equal to true list length");
-        // }
-        printf("list length recorded on instance: %d  written length: %d", connection->list[i].length, elements_written);
-        //assert(elements_written == connection->list[i].length);
+        
+        assert(elements_written == connection->list[i].length);
     }
 
     // Ensure that the file is large enough to contain the saved data
