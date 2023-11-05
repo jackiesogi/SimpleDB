@@ -43,6 +43,7 @@ struct Node
 struct Node_List
 {
 	char name[32];
+	int length;
 	struct Node *head;
 	struct Node *tail;
 };

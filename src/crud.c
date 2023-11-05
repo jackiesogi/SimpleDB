@@ -342,8 +342,69 @@ struct QueryObject* list_length(struct List_Connection *lconnection, const char 
     set_query_info(qobj, query_string, 19, "N/A", "N/A", msg);
     return qobj;
 }
-// struct QueryObject* list_range();
-// struct QueryObject* list_length();
+
+struct QueryObject* list_at_index(struct List_Connection *lconnection, const char *listname, int index)
+{
+    int count = 0;
+    struct QueryObject *qobj =  (struct QueryObject*)malloc(sizeof(struct QueryObject));
+    char query_string[188], msg[200];
+    sprintf(query_string, "LINDEX %s", listname);
+
+    int id;
+    if ( (id = get_list_index(lconnection, listname)) == -1)
+    {
+        sprintf(msg, "[Error] List \"%s\" not found.", listname);
+        set_query_info(qobj, query_string, 888, "N/A", "N/A", msg);
+        return qobj;
+    }
+
+    for (struct Node *current = lconnection->list[id].head; current != NULL; current = current->next)
+    {
+        if (count == index)
+        {
+            sprintf(msg, "Found value \"%s\" at index %d", current->value, count);
+            set_query_info(qobj, query_string, 888, "N/A", current->value, msg);
+            return qobj;
+        }
+        count++;
+    }
+    sprintf(msg, "[Error] Index %d not reachable in list \"%s\"", index, listname);
+    set_query_info(qobj, query_string, 888, "N/A", "N/A", msg);
+    return qobj;
+}
+
+struct QueryObject* list_range(struct List_Connection *lconnection, const char *listname, int start, int stop)
+{
+    struct QueryObject *qobj = (struct QueryObject*)malloc(sizeof(struct QueryObject));
+    char query_string[188], value[1024], msg[1024]; // msg might be long
+    sprintf(query_string, "LRANGE %s %d %d", listname, start, stop);
+    value[0] = '\0';
+    msg[0] = '\0';
+
+    // Todo : support circular index query
+    if (stop < start)
+    {
+        set_query_info(qobj, query_string, 20, "N/A", "N/A", "[Error] LRANGE: Currently only support stop > start");
+        return NULL;
+    }
+
+    for (int i = start; i <= stop; i++)
+    {
+        struct QueryObject *temp = list_at_index(lconnection, listname, i);
+        strncat(value, temp->val, 128);
+        strncat(msg, temp->message, 200);
+        // value[strlen(value)] = '\n';
+        // msg[strlen(msg)] = '\n';
+        strncat(value, "\n", 2);
+        strncat(msg, "\n", 2);
+        free(temp);
+    }
+    value[strlen(value)] = '\0';
+    msg[strlen(msg)] = '\0';
+
+    set_query_info(qobj, query_string, 20, "N/A", value, msg);
+    return qobj;
+}
 
 struct QueryObject* type_command(char *query_string, struct Connection* connection)
 {   
@@ -357,7 +418,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     else if (strcmp(query_string, "\0") == 0)
     {
         // Nextline
-        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "127.0.0.1:8888> ");
+        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "127.0.0.1:8888 > ");
     }
     else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
     {
@@ -465,7 +526,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         }
 
     }
-    else if (strncmp(query_string, "rpush", 5) == 0 || strncmp(query_string, "LPUSH", 5) == 0 )
+    else if (strncmp(query_string, "rpush", 5) == 0 || strncmp(query_string, "RPUSH", 5) == 0 )
     {
         char *args = query_string + 6; // Move the pointer past "lpush "
         char *listname = strtok(args, " ");
@@ -480,7 +541,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             set_query_info(queryobject, query_string, 17, "N/A", "N/A", "[Usage] RPUSH <list name> <value>");
         }
     }
-    else if (strncmp(query_string, "rpop", 4) == 0 || strncmp(query_string, "LPOP", 4) == 0 )
+    else if (strncmp(query_string, "rpop", 4) == 0 || strncmp(query_string, "RPOP", 4) == 0 )
     {
         char *args = query_string + 5; // Move the pointer past "lpush "
         char *listname = strtok(args, " ");
@@ -507,6 +568,26 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         {
             set_query_info(queryobject, query_string, 19, "N/A", "N/A", "[Usage] LLEN <list name>");
         }
+    }
+    else if (strncmp(query_string, "lrange", 6) == 0 || strncmp(query_string, "LRANGE", 6) == 0 )
+    {
+        char *args = query_string + 7; // Move the pointer past "lpush "
+        char *listname = strtok(args, " ");
+        
+        if (listname != NULL)
+        {
+            char *start_str = strtok(NULL, " ");
+            char *stop_str = strtok(NULL, " ");
+
+            if (start_str != NULL && stop_str != NULL)
+            {
+                int start = atoi(start_str);
+                int stop  = atoi(stop_str);
+                return list_range(connection->lc, listname, start, stop);
+            }
+        }
+        set_query_info(queryobject, query_string, 20, "N/A", "N/A", "[Usage] LRANGE <list name> <start idx> <stop idx>");
+        return queryobject;
     }
     else
     {
