@@ -31,7 +31,11 @@ enum query_string_status
 	del_ok,		// 13
 	del_use,	// 14
 	lpush,		// 15
-	lpop		// 16
+	lpop,		// 16
+	rpush,		// 17
+	rpop,		// 18
+	llen,		// 19
+	lrange		// 20
 };
 
 // 目前支援的指令：
