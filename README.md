@@ -1,6 +1,5 @@
 # Rebis DB
-![](./image/thumbnail.png)
-
+![](./image/example.png)
 ## Features
 * Command line interface.
 * Key-Value storage.
