@@ -13,19 +13,19 @@ struct Node
 // 紀錄雙向鏈結串列的資訊
 struct Node_List
 {
-	char name[32];		// 此list的名字
-	int length;			// 此list目前有幾個Node
-	struct Node *head;	// 指向第一個Node的指標
-	struct Node *tail;	// 指向最後一個Node的指標
+	char name[32];      // 此list的名字
+	int length;         // 此list目前有幾個Node
+	struct Node *head;  // 指向第一個Node的指標
+	struct Node *tail;  // 指向最後一個Node的指標
 };
 
 // 一個包含檔案（儲存多個List）、檔案標示符
 struct List_Connection
 {
-	const char* filename;					// 儲存數個Node_List的檔案
-	int fd;									// 檔案標示符
-	int count_entries;						// 目前有幾個Node_List
-	struct Node_List list [MAX_ENTRIES];	// Node_List的陣列
+	const char* filename;                   // 儲存數個Node_List的檔案
+	int fd;                                 // 檔案標示符
+	int count_entries;                      // 目前有幾個Node_List
+	struct Node_List list [MAX_ENTRIES];    // Node_List的陣列
 };
 ```
 
