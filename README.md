@@ -26,20 +26,20 @@ make
 
 * Set key and value
 ```sh
-set example_key_1 Helloworld
+SET example_key_1 Helloworld
 ```
 
 * Get value by key
 ```sh
-get example_key_1
+GET example_key_1
 ```
 
 *  Delete value and key
 ```sh
-del example_key_1
+DEL example_key_1
 ```
 
-## Other Supported Commands
+## All Supported Commands
 ```sh
 FLUSHDB                   # Clear all data.
 SET <key> <value>         # Set key and value.
