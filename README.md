@@ -38,3 +38,19 @@ get example_key_1
 ```sh
 del example_key_1
 ```
+
+## Other Supported Commands
+```sh
+FLUSHDB                   # Clear all data.
+SET <key> <value>         # Set key and value.
+GET <key>                 # Get value by key.
+DEL <key>                 # Delete value by key.
+HELP                      # Show help page.
+EXIT                      # Exit the program.
+LPUSH <list> <value>      # Left push value to the list .
+RPUSH <list> <value>      # Right push value to the list.
+LPOP  <list>              # Left pop value from the list.
+RPOP  <list>              # Right pop value from the list.
+LLEN  <list>              # Get the length of the list.
+LEANGE <index1> <index2>  # Get the value within the index range.
+```
