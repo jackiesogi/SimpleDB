@@ -31,7 +31,7 @@ RPUSH <list> <value>      # Right push value to the list.
 LPOP  <list>              # Left pop value from the list.
 RPOP  <list>              # Right pop value from the list.
 LLEN  <list>              # Get the length of the list.
-LEANGE <index1> <index2>  # Get the value within the index range.
+LRANGE <index1> <index2>  # Get the value within the index range.
 ```
 
 ## Example
