@@ -29,7 +29,13 @@ enum query_string_status
 	get_ok,		// 11
 	get_use,	// 12
 	del_ok,		// 13
-	del_use	// 14
+	del_use,	// 14
+	lpush,		// 15
+	lpop,		// 16
+	rpush,		// 17
+	rpop,		// 18
+	llen,		// 19
+	lrange		// 20
 };
 
 // 目前支援的指令：
@@ -47,11 +53,14 @@ int main()
 {
     print_welcome_page();
 
-	// FILENAME 是預設的資料儲存檔案 定義在 datastructure.h
-	const char* filename = FILENAME;
+	// TABLE_FILE 是預設的資料儲存檔案 定義在 datastructure.h
+	const char* tablefile = TABLE_FILE;
+	const char* listfile = LIST_FILE;
 
 	// Connection 結構包含了 檔案路徑 檔案標示符 和從檔案讀取進來的 KeyValue_Table
-	struct Connection *connection = load_data_from_file(filename, MAX_ENTRIES);
+	struct Table_Connection *table_connected = load_table_from_file(tablefile, MAX_ENTRIES);
+	struct List_Connection *list_connected  = load_list_from_file(listfile);
+	struct Connection *connection = initConnection(table_connected, list_connected);
 
     // query_string 是使用者將要在 cli 介面輸入的指令
 	char query_string[QUERY_STRING_MAX];
@@ -89,7 +98,8 @@ int main()
     }
 
 	// 將 Connection 結構內的 KeyValue_Table 寫回檔案
-	save_data_to_file(connection);
+	save_table_to_file(table_connected);
+	save_list_to_file(list_connected);
 	
 	free_connection(connection); 
     
@@ -134,11 +144,11 @@ int main()
 // // Todo : create_config_setting is used to create a new key value in config file
 // void create_config_setting(char* config_path, const char* key, char* value)
 // {
-// 	struct Connection *cconnect = load_data_from_file(config_path, 25);
+// 	struct Connection *cconnect = load_table_from_file(config_path, 25);
 	
 // 	if(cconnect->fd == -1)
 // 	{
-// 		log_message("[Error] Unable to create connection to config file");
+// 		log_message("[Error] Unable to create table_connected to config file");
 // 		return;
 // 	}
 
@@ -172,11 +182,11 @@ int main()
 // 	return fd;
 // }
 
-// // Todo : add machanism of adding a new connection to configFile,
+// // Todo : add machanism of adding a new table_connected to configFile,
 // // 		  and then retrieve the database file path by calling "(config) GET dir"
 // void run_application(const char* configFile)
 // {
-// 	struct Connection *cconfig = load_data_from_file(configFile, 1);
+// 	struct Connection *cconfig = load_table_from_file(configFile, 1);
 // 	struct QueryObject *qconfig = type_command(strdup("GET dir"), cconfig);
 
 // 	// Todo : 需要一些額外檢查 看databaseFile合不合法
@@ -187,7 +197,7 @@ int main()
 // 	printWelcomePage();
 
 // 	// Connection 結構包含了 檔案路徑 檔案標示符 和從檔案讀取進來的 KeyValue_Table
-// 	struct Connection *connection = load_data_from_file(databaseFile, MAX_ENTRIES);
+// 	struct Connection *table_connected = load_table_from_file(databaseFile, MAX_ENTRIES);
 
 //     // query_string 是使用者將要在 cli 介面輸入的指令
 // 	char query_string[QUERY_STRING_MAX];
@@ -208,7 +218,7 @@ int main()
 
 // 		// type_command() 接收 使用者的 query 並對檔案內容進行搜尋
 // 		// QueryObject 結構包含了 type_command()回傳回來的 query 結果
-// 		struct QueryObject* qobj = type_command(query_string, connection);
+// 		struct QueryObject* qobj = type_command(query_string, table_connected);
 
 // 		log_message( qobj->message );
 		
@@ -225,9 +235,9 @@ int main()
 //     }
 
 // 	// 將 Connection 結構內的 KeyValue_Table 寫回檔案
-// 	save_data_to_file(connection);
+// 	save_table_to_file(table_connected);
 	
-// 	free_connection(connection); 
+// 	free_table_connected(table_connected); 
 
 // }
 

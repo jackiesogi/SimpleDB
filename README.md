@@ -1,6 +1,5 @@
 # Rebis DB
-![](./image/thumbnail.png)
-
+![](./image/example.png)
 ## Features
 * Command line interface.
 * Key-Value storage.
@@ -19,7 +18,23 @@ make
 ```
 * By default, the SimpleDB directory will not add to your environment variable, you can add it if needed.
 
-## Commands
+## All Supported Commands
+```sh
+FLUSHDB                   # Clear all data.
+SET <key> <value>         # Set key and value.
+GET <key>                 # Get value by key.
+DEL <key>                 # Delete value by key.
+HELP                      # Show help page.
+EXIT                      # Exit the program.
+LPUSH <list> <value>      # Left push value to the list .
+RPUSH <list> <value>      # Right push value to the list.
+LPOP  <list>              # Left pop value from the list.
+RPOP  <list>              # Right pop value from the list.
+LLEN  <list>              # Get the length of the list.
+LRANGE <index1> <index2>  # Get the value within the index range.
+```
+
+## Example
 * Start the rebis-cli
 ```sh
 ./rebis-cli
@@ -27,15 +42,15 @@ make
 
 * Set key and value
 ```sh
-set example_key_1 Helloworld
+SET example_key_1 Helloworld
 ```
 
 * Get value by key
 ```sh
-get example_key_1
+GET example_key_1
 ```
 
 *  Delete value and key
 ```sh
-del example_key_1
+DEL example_key_1
 ```
