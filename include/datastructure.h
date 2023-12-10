@@ -59,10 +59,10 @@ struct List_Connection
 	struct Node_List list [MAX_ENTRIES];
 };
 
-struct SerializedListConnection
-{
-	char *vaueTable[MAX_ENTRIES][MAX_ENTRIES];
-};
+// struct SerializedListConnection
+// {
+// 	char *vaueTable[MAX_ENTRIES][MAX_ENTRIES];
+// };
 
 struct Connection
 {
