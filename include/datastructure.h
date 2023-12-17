@@ -80,6 +80,7 @@ struct QueryObject
 	const char *message;
 };
 
+
 extern struct KeyValue_Table* initKeyValueTable(int32_t max_size);
 
 struct List_Connection* initNodeListConnection();
@@ -93,3 +94,16 @@ extern void initConfigTable(const char* dbPath);
 
 extern struct Connection* initConnection(struct Table_Connection*, struct List_Connection*);
 #endif
+
+// TODO:
+// ZADD
+// ZCARD
+// ZCOUNT
+// ZINTERSTORE
+// ZUNIONSTORE
+// ZRANGE
+// ZRANGEBYSCORE
+// ZRANK
+// ZREM
+// ZREMRANGE
+// ZREMRGEBYSCORE
