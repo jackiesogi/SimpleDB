@@ -82,14 +82,15 @@ struct QueryObject* table_get(struct KeyValue_Table *table, const char *search_k
     {
         if (strcmp(current->key, search_key) == 0)
         {
-            sprintf(msg, "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            //sprintf(msg, "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            sprintf(msg, "'%s'", current->value);
             set_query_info(qobj, query_string, 11, search_key, current->value, msg);
             return qobj;
         }
         current = current->next;
     }
 
-    sprintf(msg, "Key '%s' not found.", search_key);
+    sprintf(msg, "(nil)");
     set_query_info(qobj, query_string, 11, search_key, "nil", msg);
     return qobj; // Key not found
 }
@@ -106,7 +107,7 @@ struct QueryObject* table_del(struct KeyValue_Table *table, const char *search_k
     {
         if (strcmp(current->key, search_key) == 0)
         {
-            sprintf(msg, "Deleted key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            sprintf(msg, "(integer) 1");
 
             // delete key and value
             current->key[0] = '\0';
@@ -120,7 +121,7 @@ struct QueryObject* table_del(struct KeyValue_Table *table, const char *search_k
         current = current->next;
     }
 
-    sprintf(msg, "Key '%s' not found.", search_key);
+    sprintf(msg, "(integer) 0");
     set_query_info(qobj, query_string, 13, search_key, "nil", msg);
 
     return qobj; // Key not found
