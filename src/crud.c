@@ -61,7 +61,8 @@ struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_k
 
     new_entry->next = &(table->records[index]);
     table->records[index] = *new_entry;
-    sprintf(msg, "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
+    //sprintf(msg, "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
+    strncpy(msg, "OK", 3);
     set_query_info(qobj, query_string, 9, search_key, value, msg); 
 
     return qobj;
