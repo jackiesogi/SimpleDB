@@ -439,13 +439,13 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             set_query_info(queryobject, query_string, 10, "N/A", "N/A", "[Usage] SET <key> <value>");
         }
     }
-    else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
+    else if (strncmp(query_string, "get", 3) == 0 || strncmp(query_string, "GET", 3) == 0)
     {
-        char *key = query_string + 4; // Move the pointer past "get "
+        char *key = query_string + 3; // Move the pointer past "get "
         if (strcmp(key, " ") == 0)
         {
             // get_usage
-            set_query_info(queryobject, query_string, 12, key, "N/A", "[Usage] GET <key>");
+            set_query_info(queryobject, query_string, 12, "N/A", "N/A", "[Usage] GET <key>");
         }
         else
         {
@@ -454,13 +454,13 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             return table_get(connection->tc->table, key);
         }
     }
-    else if (strncmp(query_string, "del ", 4) == 0 || strncmp(query_string, "DEL ", 4) == 0)
+    else if (strncmp(query_string, "del", 3) == 0 || strncmp(query_string, "DEL", ) == 0)
     {
-        char *key = query_string + 4; // Move the pointer past "get "
+        char *key = query_string + 3; // Move the pointer past "get "
         if (strcmp(key, " ") == 0)
         {   
             // del_usage
-            set_query_info(queryobject, query_string, 14, key, "N/A", "[Usage] DEL <key>");
+            set_query_info(queryobject, query_string, 14, "N/A", "N/A", "[Usage] DEL <key>");
         }
         else
         {
