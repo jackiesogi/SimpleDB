@@ -424,7 +424,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     }
     else if (strncmp(query_string, "set", 3) == 0 || strncmp(query_string, "SET", 3) == 0)
     {
-        char *args = query_string + 3; // Move the pointer past "set "
+        char *args = query_string + 4; // Move the pointer past "set "
         char *key = strtok(args, " ");
         char *value = strtok(NULL, " ");
         if (key != NULL && value != NULL)
@@ -441,7 +441,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     }
     else if (strncmp(query_string, "get", 3) == 0 || strncmp(query_string, "GET", 3) == 0)
     {
-        char *key = query_string + 3; // Move the pointer past "get "
+        char *key = query_string + 4; // Move the pointer past "get "
         if (strcmp(key, " ") == 0)
         {
             // get_usage
@@ -454,9 +454,9 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             return table_get(connection->tc->table, key);
         }
     }
-    else if (strncmp(query_string, "del", 3) == 0 || strncmp(query_string, "DEL", ) == 0)
+    else if (strncmp(query_string, "del", 3) == 0 || strncmp(query_string, "DEL", 3) == 0)
     {
-        char *key = query_string + 3; // Move the pointer past "get "
+        char *key = query_string + 4; // Move the pointer past "get "
         if (strcmp(key, " ") == 0)
         {   
             // del_usage
