@@ -34,7 +34,7 @@ void set_query_info(struct QueryObject *qobj,
     }
     else
     {
-        log_message("[Error] set_query_info() failed due to assignment of null pointer.");
+        log_error("[Error] set_query_info() failed due to assignment of null pointer.");
     }
 }
 
@@ -422,9 +422,9 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         // Nextline
         set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "");
     }
-    else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
+    else if (strncmp(query_string, "set", 3) == 0 || strncmp(query_string, "SET", 3) == 0)
     {
-        char *args = query_string + 4; // Move the pointer past "set "
+        char *args = query_string + 3; // Move the pointer past "set "
         char *key = strtok(args, " ");
         char *value = strtok(NULL, " ");
         if (key != NULL && value != NULL)
@@ -436,7 +436,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         else
         {
             // set_usage
-            set_query_info(queryobject, query_string, 10, key, "N/A", "[Usage] SET <key> <value>");
+            set_query_info(queryobject, query_string, 10, "N/A", "N/A", "[Usage] SET <key> <value>");
         }
     }
     else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
