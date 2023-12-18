@@ -420,7 +420,7 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     else if (strcmp(query_string, "\0") == 0)
     {
         // Nextline
-        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "127.0.0.1:8888 > ");
+        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "");
     }
     else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
     {
