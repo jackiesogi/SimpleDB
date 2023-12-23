@@ -49,53 +49,84 @@ enum query_string_status
 /**********************************/
 /** Entry point of the rebis-cli **/
 /**********************************/
-int main()
+int main(int argc, char* argv[])
 {
+
+  // TABLE_FILE 是預設的資料儲存檔案 定義在 datastructure.h
+  const char* tablefile = TABLE_FILE;
+  const char* listfile = LIST_FILE;
+
+  // Connection 結構包含了 檔案路徑 檔案標示符 和從檔案讀取進來的 KeyValue_Table
+  struct Table_Connection *table_connected = load_table_from_file(tablefile, MAX_ENTRIES);
+  struct List_Connection *list_connected  = load_list_from_file(listfile);
+  struct Connection *connection = initConnection(table_connected, list_connected);
+
+  if(argc == 1)
+  {
     print_welcome_page();
 
-	// TABLE_FILE 是預設的資料儲存檔案 定義在 datastructure.h
-	const char* tablefile = TABLE_FILE;
-	const char* listfile = LIST_FILE;
+      // query_string 是使用者將要在 cli 介面輸入的指令
+    char query_string[QUERY_STRING_MAX];
 
-	// Connection 結構包含了 檔案路徑 檔案標示符 和從檔案讀取進來的 KeyValue_Table
-	struct Table_Connection *table_connected = load_table_from_file(tablefile, MAX_ENTRIES);
-	struct List_Connection *list_connected  = load_list_from_file(listfile);
-	struct Connection *connection = initConnection(table_connected, list_connected);
+      while (1)
+      {	
+        print_new_line();
 
-    // query_string 是使用者將要在 cli 介面輸入的指令
-	char query_string[QUERY_STRING_MAX];
+            fgets(query_string, sizeof(query_string), stdin);
 
-    while (1)
-    {	
-		print_new_line();
+            // Remove newline character added by fgets
+            size_t len = strlen( query_string );
 
-        fgets(query_string, sizeof(query_string), stdin);
+            if (len > 0 && query_string[len - 1] == '\n')
+            {
+                query_string[len - 1] = '\0';
+            }
 
-        // Remove newline character added by fgets
-        size_t len = strlen( query_string );
+        // type_command() 接收 使用者的 query 並對檔案內容進行搜尋
+        // QueryObject 結構包含了 type_command()回傳回來的 query 結果
+        struct QueryObject* qobj = type_command(query_string, connection);
 
-        if (len > 0 && query_string[len - 1] == '\n')
+        log_message( qobj->message );
+        
+        if ( qobj->status_code == 0 )
         {
-            query_string[len - 1] = '\0';
+          break;		// status_code 等於0 代表使用者輸入 EXIT 指令
+        }
+        else if ( qobj->status_code == 6 )
+        {
+          exit(0);	// status_code 等於6 代表使用者輸入 FLUSHDB（清空檔案內容），需要重啟一個新的 session
         }
 
-		// type_command() 接收 使用者的 query 並對檔案內容進行搜尋
-		// QueryObject 結構包含了 type_command()回傳回來的 query 結果
-		struct QueryObject* qobj = type_command(query_string, connection);
+        free(qobj);		// 釋放 QueryObject 結構物件所佔用的資源
+      }
+  }
+  else
+  {
+    char* clarg = (char*)malloc(1); // Allocate memory for an empty string
+    clarg[0] = '\0'; // Ensure the string is properly terminated
 
-		log_message( qobj->message );
-		
-		if ( qobj->status_code == 0 )
-		{
-			break;		// status_code 等於0 代表使用者輸入 EXIT 指令
-		}
-		else if ( qobj->status_code == 6 )
-		{
-			exit(0);	// status_code 等於6 代表使用者輸入 FLUSHDB（清空檔案內容），需要重啟一個新的 session
-		}
-
-		free(qobj);		// 釋放 QueryObject 結構物件所佔用的資源
+    for(int i = 1; i < argc; i++) {
+        if(strnlen(argv[i], 100) > 90) {
+            fprintf(stderr, "The argument length exceeded\n");
+        }
+        size_t clarg_len = strlen(clarg);
+        clarg = (char*)realloc(clarg, clarg_len + strlen(argv[i]) + 1); // Reallocate memory
+        strncat(clarg, argv[i], 90); // Concatenate argument to clarg
+        strncat(clarg, " ", 2);
     }
+    
+    size_t len = strlen(clarg);
+    if (len > 0 && clarg[len - 1] == ' ') {
+        clarg[len - 1] = '\0';
+    }
+    
+    struct QueryObject* qobj = type_command(clarg, connection);
+
+    log_message( qobj->message );
+
+    free(qobj);
+    free(clarg); // Free allocated memory when done
+  }
 
 	// 將 Connection 結構內的 KeyValue_Table 寫回檔案
 	save_table_to_file(table_connected);

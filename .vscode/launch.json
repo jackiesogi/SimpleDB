@@ -19,6 +19,14 @@
             "program": "${workspaceFolder}/test/benchmark",
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Rebis with args",
+            "program": "${workspaceFolder}/rebis-cli",
+            "args": ["get", "name"],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

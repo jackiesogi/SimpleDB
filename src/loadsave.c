@@ -206,6 +206,7 @@ void save_list_to_file(const struct List_Connection *connection) {
             elements_written++;
         }
         
+        // 如果寫入的元素數不等於list上紀錄的length 報錯
         assert(elements_written == connection->list[i].length);
     }
 

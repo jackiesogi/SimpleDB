@@ -34,7 +34,7 @@ void set_query_info(struct QueryObject *qobj,
     }
     else
     {
-        log_message("[Error] set_query_info() failed due to assignment of null pointer.");
+        log_error("[Error] set_query_info() failed due to assignment of null pointer.");
     }
 }
 
@@ -61,7 +61,8 @@ struct QueryObject* table_set(struct KeyValue_Table *table, const char *search_k
 
     new_entry->next = &(table->records[index]);
     table->records[index] = *new_entry;
-    sprintf(msg, "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
+    //sprintf(msg, "Inserted key '%s' with value '%s' at index '%d'.", search_key, value, index);
+    strncpy(msg, "OK", 3);
     set_query_info(qobj, query_string, 9, search_key, value, msg); 
 
     return qobj;
@@ -81,14 +82,15 @@ struct QueryObject* table_get(struct KeyValue_Table *table, const char *search_k
     {
         if (strcmp(current->key, search_key) == 0)
         {
-            sprintf(msg, "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            //sprintf(msg, "Found key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            sprintf(msg, "'%s'", current->value);
             set_query_info(qobj, query_string, 11, search_key, current->value, msg);
             return qobj;
         }
         current = current->next;
     }
 
-    sprintf(msg, "Key '%s' not found.", search_key);
+    sprintf(msg, "(nil)");
     set_query_info(qobj, query_string, 11, search_key, "nil", msg);
     return qobj; // Key not found
 }
@@ -105,7 +107,7 @@ struct QueryObject* table_del(struct KeyValue_Table *table, const char *search_k
     {
         if (strcmp(current->key, search_key) == 0)
         {
-            sprintf(msg, "Deleted key '%s' with value '%s' at index '%d'.", search_key, current->value, index);
+            sprintf(msg, "(integer) 1");
 
             // delete key and value
             current->key[0] = '\0';
@@ -119,7 +121,7 @@ struct QueryObject* table_del(struct KeyValue_Table *table, const char *search_k
         current = current->next;
     }
 
-    sprintf(msg, "Key '%s' not found.", search_key);
+    sprintf(msg, "(integer) 0");
     set_query_info(qobj, query_string, 13, search_key, "nil", msg);
 
     return qobj; // Key not found
@@ -418,9 +420,9 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
     else if (strcmp(query_string, "\0") == 0)
     {
         // Nextline
-        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "127.0.0.1:8888 > ");
+        set_query_info(queryobject, "NEXTLINE", 1, "N/A", "N/A", "");
     }
-    else if (strncmp(query_string, "set ", 4) == 0 || strncmp(query_string, "SET ", 4) == 0)
+    else if (strncmp(query_string, "set", 3) == 0 || strncmp(query_string, "SET", 3) == 0)
     {
         char *args = query_string + 4; // Move the pointer past "set "
         char *key = strtok(args, " ");
@@ -434,16 +436,16 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
         else
         {
             // set_usage
-            set_query_info(queryobject, query_string, 10, key, "N/A", "[Usage] SET <key> <value>");
+            set_query_info(queryobject, query_string, 10, "N/A", "N/A", "[Usage] SET <key> <value>");
         }
     }
-    else if (strncmp(query_string, "get ", 4) == 0 || strncmp(query_string, "GET ", 4) == 0)
+    else if (strncmp(query_string, "get", 3) == 0 || strncmp(query_string, "GET", 3) == 0)
     {
         char *key = query_string + 4; // Move the pointer past "get "
         if (strcmp(key, " ") == 0)
         {
             // get_usage
-            set_query_info(queryobject, query_string, 12, key, "N/A", "[Usage] GET <key>");
+            set_query_info(queryobject, query_string, 12, "N/A", "N/A", "[Usage] GET <key>");
         }
         else
         {
@@ -452,13 +454,13 @@ struct QueryObject* type_command(char *query_string, struct Connection* connecti
             return table_get(connection->tc->table, key);
         }
     }
-    else if (strncmp(query_string, "del ", 4) == 0 || strncmp(query_string, "DEL ", 4) == 0)
+    else if (strncmp(query_string, "del", 3) == 0 || strncmp(query_string, "DEL", 3) == 0)
     {
         char *key = query_string + 4; // Move the pointer past "get "
         if (strcmp(key, " ") == 0)
         {   
             // del_usage
-            set_query_info(queryobject, query_string, 14, key, "N/A", "[Usage] DEL <key>");
+            set_query_info(queryobject, query_string, 14, "N/A", "N/A", "[Usage] DEL <key>");
         }
         else
         {
