@@ -1,8 +1,8 @@
-#include "../include/hirebis.h"
-#include "../include/datastructure.h"
-#include "../include/log.h"
-#include "../include/loadsave.h"
-#include "../include/crud.h"
+#include "hirebis.h"
+#include "datastructure.h"
+#include "log.h"
+#include "loadsave.h"
+#include "crud.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

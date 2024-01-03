@@ -1,7 +1,7 @@
 #ifndef LOAD_N_SAVE_H
 #define LOAD_N_SAVE_H
 
-#include "../include/datastructure.h"
+#include "datastructure.h"
 
 // extern struct KeyValue_Table* load_table_from_file(int fd, void *table, const char* filenanme);
 

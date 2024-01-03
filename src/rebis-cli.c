@@ -5,12 +5,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include "../include/datastructure.h"
-#include "../include/crud.h"
-#include "../include/cli.h"
-#include "../include/loadsave.h"
-#include "../include/crud.h"
-#include "../include/log.h"
+#include "datastructure.h"
+#include "crud.h"
+#include "cli.h"
+#include "loadsave.h"
+#include "crud.h"
+#include "log.h"
 
 // status code 之後擴充功能時應該用的到
 enum query_string_status

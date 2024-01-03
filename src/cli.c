@@ -1,4 +1,4 @@
-#include "../include/cli.h"
+#include "cli.h"
 #include <stdio.h>
 
 void print_welcome_page()

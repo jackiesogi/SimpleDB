@@ -9,7 +9,7 @@ which has similar function with <hiredis.h>
 #ifndef HIREBIS_H
 #define HIREBIS_H
 
-#include "../include/datastructure.h"
+#include "datastructure.h"
 #define localhost "./data/kvstore.dat"
 
 typedef struct rebisContext

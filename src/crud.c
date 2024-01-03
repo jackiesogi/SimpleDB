@@ -1,6 +1,6 @@
 /* Source file of crud.h */
-#include "../include/datastructure.h"
-#include "../include/log.h"
+#include "datastructure.h"
+#include "log.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>

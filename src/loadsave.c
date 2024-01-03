@@ -1,6 +1,6 @@
-#include "../include/loadsave.h"
-#include "../include/datastructure.h"
-#include "../include/log.h"
+#include "loadsave.h"
+#include "datastructure.h"
+#include "log.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

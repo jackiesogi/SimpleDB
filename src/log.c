@@ -1,5 +1,5 @@
-#include "../include/log.h"
-#include "../include/cli.h"
+#include "log.h"
+#include "cli.h"
 #include <stdio.h>
 #include <string.h>
 
