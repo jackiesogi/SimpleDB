@@ -60,7 +60,7 @@ struct Table_Connection* load_table_from_file(const char* filename, int32_t tabl
     {
         table->max_size = table_size;
     }
-    else if ( table->max_size > MAX_ENTRIES )
+    else if ( table->max_size > KV_TABLE_MAX_ENTRIES )
     {
         log_message("[Error] Table size has been adjusted.\n");
         exit(1);

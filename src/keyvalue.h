@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #define TABLE_FILE "./data/kvstore.dat"
-#define TABLE_MAX_ENTRIES 1000
+#define KV_TABLE_MAX_ENTRIES 1000
 // Key-value pair
 struct KeyValue
 {
@@ -17,7 +17,7 @@ struct KeyValue_Table
 {
 	int32_t count_entries;
 	int32_t max_size;
-	struct KeyValue records[TABLE_MAX_ENTRIES];
+	struct KeyValue records[KV_TABLE_MAX_ENTRIES];
 };
 
 struct Table_Connection
@@ -31,7 +31,5 @@ struct Table_Connection
 extern struct KeyValue_Table* initKeyValueTable(int32_t max_size);
 
 extern void freeKeyValueTable(struct KeyValue_Table *table);
-
-void freeKeyValueList(struct Node_List *list);
 
 #endif

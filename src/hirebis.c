@@ -13,7 +13,7 @@ rebisContext* rebisConnect(const char* ip, int port)
 {
     if ( strncmp(ip, "127.0.0.1", 9) == 0)
     {
-        struct Table_Connection *tconnection = load_table_from_file(localhost, MAX_ENTRIES);     // localhost只是 "./data/kvstore.dat" 這個檔案的代稱而已 定義在 hirebis.h
+        struct Table_Connection *tconnection = load_table_from_file(localhost, KV_TABLE_MAX_ENTRIES);     // localhost只是 "./data/kvstore.dat" 這個檔案的代稱而已 定義在 hirebis.h
         // Todo : filename 待改
         struct List_Connection  *lconnection = load_list_from_file(localhost);
         struct Connection *connection = initConnection(tconnection, lconnection);

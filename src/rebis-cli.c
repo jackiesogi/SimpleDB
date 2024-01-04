@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   const char* listfile = LIST_FILE;
 
   // Connection 結構包含了 檔案路徑 檔案標示符 和從檔案讀取進來的 KeyValue_Table
-  struct Table_Connection *table_connected = load_table_from_file(tablefile, MAX_ENTRIES);
+  struct Table_Connection *table_connected = load_table_from_file(tablefile, KV_TABLE_MAX_ENTRIES);
   struct List_Connection *list_connected  = load_list_from_file(listfile);
   struct Connection *connection = initConnection(table_connected, list_connected);
 

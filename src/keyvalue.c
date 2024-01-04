@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "keyvalue.h"
 
 struct KeyValue_Table* initKeyValueTable(int32_t max_size)
@@ -14,13 +15,5 @@ void freeKeyValueTable(struct KeyValue_Table *table)
 	if (table != NULL)
 	{
     	free(table);
-	}
-}
-
-void freeKeyValueList(struct Node_List *list)
-{
-	if (list != NULL)
-	{
-    	free(list);
 	}
 }

@@ -32,4 +32,6 @@ struct List_Connection
 
 struct List_Connection* initNodeListConnection();
 
+void freeKeyValueList(struct Node_List *list);
+
 #endif

@@ -1,5 +1,5 @@
+#include <stdlib.h>
 #include "connection.h"
-
 
 struct Connection* initConnection(struct Table_Connection *tconnection, struct List_Connection *lconnection)
 {
