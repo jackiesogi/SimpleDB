@@ -1,6 +1,7 @@
 # Compiler and compiler flags
 CC = gcc
 CFLAGS = -Wall -Wextra -g
+LDFLAGS = -lev
 
 # Source files and output executable
 SRC_DIR = src
@@ -19,11 +20,11 @@ all: clean $(DB_DIR) $(EXE)
 
 # Link the object files to create the executable
 $(EXE): $(OBJ_FILES)
-	$(CC) $(CFLAGS) -o $(EXE) $(OBJ_FILES)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJ_FILES)
 
 # Compile individual source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) -c $< -o $@
 
 # Clean up build artifacts
 clean:
